@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { BlogPost } from "@/api/apiClient";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Calendar, User, ArrowRight, ChevronDown, ArrowLeft } from "lucide-react";
@@ -54,23 +54,16 @@ export default function Blog() {
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['blog-posts', selectedCategory],
-    queryFn: () => {
-      const query = { published: true };
-      if (selectedCategory !== "all") {
-        query.category = selectedCategory;
-      }
-      return base44.entities.BlogPost.filter(query, '-created_date');
-    },
+    queryFn: () => BlogPost.findMany({
+      category: selectedCategory !== "all" ? selectedCategory : undefined
+    }),
     initialData: [],
   });
 
   // Fetch individual post if slug is present
   const { data: singlePost, isLoading: singlePostLoading } = useQuery({
     queryKey: ['blog-post', postSlug],
-    queryFn: async () => {
-      const result = await base44.entities.BlogPost.filter({ slug: postSlug, published: true });
-      return result[0];
-    },
+    queryFn: () => BlogPost.findBySlug(postSlug),
     enabled: !!postSlug,
   });
 
@@ -163,7 +156,7 @@ export default function Blog() {
             <div className="flex items-center justify-center gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                <span>{format(new Date(singlePost.created_date), 'MMMM d, yyyy')}</span>
+                <span>{format(new Date(singlePost.created_at), 'MMMM d, yyyy')}</span>
               </div>
             </div>
           </div>
@@ -347,7 +340,7 @@ export default function Blog() {
                 <div className="flex items-center gap-4 text-sm text-[var(--gray-medium)] mb-4">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    <span>{format(new Date(featuredPost.created_date), 'MMMM d, yyyy')}</span>
+                    <span>{format(new Date(featuredPost.created_at), 'MMMM d, yyyy')}</span>
                   </div>
                 </div>
                 <h2 className="text-4xl font-bold text-[var(--black)] mb-4 hover:text-[var(--accent)] transition-colors">
@@ -422,7 +415,7 @@ export default function Blog() {
                     <div className="flex items-center gap-4 text-sm text-[var(--gray-medium)] mb-3">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        <span>{format(new Date(post.created_date), 'MMM d, yyyy')}</span>
+                        <span>{format(new Date(post.created_at), 'MMM d, yyyy')}</span>
                       </div>
                     </div>
                     <h3 className="text-xl font-bold text-[var(--black)] mb-3 group-hover:text-[var(--accent)] transition-colors line-clamp-2">

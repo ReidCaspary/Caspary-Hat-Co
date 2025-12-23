@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { base44 } from "@/api/base44Client";
+import { User } from "@/api/apiClient";
 import { Menu, X, Phone, Mail, MapPin, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import NewsletterPopup from "./components/NewsletterPopup";
+import NewsletterPopup from "../components/NewsletterPopup";
 
 const navigationItems = [
 { name: "Home", url: createPageUrl("Home") },
@@ -39,7 +39,7 @@ export default function Layout({ children, currentPageName }) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const currentUser = await base44.auth.me();
+        const currentUser = await User.me();
         setUser(currentUser);
       } catch (error) {
         setUser(null);

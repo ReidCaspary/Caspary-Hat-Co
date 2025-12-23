@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { User, Image } from "@/api/apiClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ export default function MediaLibrary() {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const currentUser = await base44.auth.me();
+        const currentUser = await User.me();
         setUser(currentUser);
         if (currentUser.role !== 'admin') {
           window.location.href = '/';
@@ -41,18 +41,16 @@ export default function MediaLibrary() {
 
   const { data: images, isLoading: imagesLoading } = useQuery({
     queryKey: ['images'],
-    queryFn: () => base44.entities.Image.list('-created_date'),
+    queryFn: () => Image.findMany(),
     initialData: [],
     enabled: !!user && user.role === 'admin'
   });
 
   const uploadMutation = useMutation({
     mutationFn: async (data) => {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: data.file });
-      return base44.entities.Image.create({
-        name: data.name,
-        image_url: file_url,
-        description: data.description
+      return Image.upload(data.file, {
+        alt_text: data.name,
+        category: data.description
       });
     },
     onSuccess: () => {
@@ -68,7 +66,7 @@ export default function MediaLibrary() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Image.delete(id),
+    mutationFn: (id) => Image.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['images'] });
       setSelectedImage(null);
@@ -223,7 +221,7 @@ export default function MediaLibrary() {
                 >
                   <div className="aspect-square overflow-hidden">
                     <img
-                      src={image.image_url}
+                      src={image.url}
                       alt={image.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
@@ -234,7 +232,7 @@ export default function MediaLibrary() {
                       <p className="text-sm text-[var(--gray-medium)] truncate mt-1">{image.description}</p>
                     )}
                     <p className="text-xs text-[var(--gray-medium)] mt-2">
-                      {new Date(image.created_date).toLocaleDateString()}
+                      {new Date(image.uploaded_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -256,7 +254,7 @@ export default function MediaLibrary() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="relative rounded-lg overflow-hidden bg-gray-100">
                   <img
-                    src={selectedImage.image_url}
+                    src={selectedImage.url}
                     alt={selectedImage.name}
                     className="w-full h-auto"
                   />
@@ -269,16 +267,16 @@ export default function MediaLibrary() {
                     </label>
                     <div className="flex gap-2">
                       <Input
-                        value={selectedImage.image_url}
+                        value={selectedImage.url}
                         readOnly
                         className="flex-1"
                       />
                       <Button
-                        onClick={() => copyToClipboard(selectedImage.image_url)}
+                        onClick={() => copyToClipboard(selectedImage.url)}
                         variant="outline"
                         className="flex-shrink-0"
                       >
-                        {copiedUrl === selectedImage.image_url ? (
+                        {copiedUrl === selectedImage.url ? (
                           <Check className="w-4 h-4 text-green-600" />
                         ) : (
                           <Copy className="w-4 h-4" />
@@ -301,7 +299,7 @@ export default function MediaLibrary() {
                       Upload Date
                     </label>
                     <p className="text-[var(--gray-medium)]">
-                      {new Date(selectedImage.created_date).toLocaleString()}
+                      {new Date(selectedImage.uploaded_at).toLocaleString()}
                     </p>
                   </div>
 

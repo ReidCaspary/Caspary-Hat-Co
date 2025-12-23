@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { User, ContactInquiry } from "@/api/apiClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ export default function AdminInquiries() {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const currentUser = await base44.auth.me();
+        const currentUser = await User.me();
         setUser(currentUser);
         if (currentUser.role !== 'admin') {
           window.location.href = '/';
@@ -33,20 +33,20 @@ export default function AdminInquiries() {
 
   const { data: inquiries, isLoading: inquiriesLoading } = useQuery({
     queryKey: ['contact-inquiries'],
-    queryFn: () => base44.entities.ContactInquiry.list('-created_date'),
+    queryFn: () => ContactInquiry.findMany(),
     initialData: [],
     enabled: !!user && user.role === 'admin'
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.ContactInquiry.update(id, { status }),
+    mutationFn: ({ id, status }) => ContactInquiry.updateStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contact-inquiries'] });
     }
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.ContactInquiry.delete(id),
+    mutationFn: (id) => ContactInquiry.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contact-inquiries'] });
       setSelectedInquiry(null);
@@ -119,7 +119,7 @@ export default function AdminInquiries() {
                       <td className="px-6 py-4 text-sm text-[var(--gray-medium)]">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
-                          {format(new Date(inquiry.created_date), 'MMM d, yyyy')}
+                          {format(new Date(inquiry.created_at), 'MMM d, yyyy')}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -236,7 +236,7 @@ export default function AdminInquiries() {
                   <div>
                     <label className="text-sm font-semibold text-[var(--primary)]">Date</label>
                     <p className="text-[var(--gray-medium)]">
-                      {format(new Date(selectedInquiry.created_date), 'PPP p')}
+                      {format(new Date(selectedInquiry.created_at), 'PPP p')}
                     </p>
                   </div>
                 </div>

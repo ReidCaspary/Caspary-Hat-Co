@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { Image } from "@/api/apiClient";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -22,7 +22,7 @@ export default function ImagePicker({ onSelect, buttonText = "Select Image" }) {
 
   const { data: images, isLoading } = useQuery({
     queryKey: ['images-picker'],
-    queryFn: () => base44.entities.Image.list('-created_date'),
+    queryFn: () => Image.findMany(),
     initialData: [],
     enabled: isOpen
   });
@@ -33,7 +33,7 @@ export default function ImagePicker({ onSelect, buttonText = "Select Image" }) {
 
   const handleConfirm = () => {
     if (selectedImage && onSelect) {
-      onSelect(selectedImage.image_url, selectedImage);
+      onSelect(selectedImage.url, selectedImage);
       setIsOpen(false);
       setSelectedImage(null);
     }
@@ -79,8 +79,8 @@ export default function ImagePicker({ onSelect, buttonText = "Select Image" }) {
                   >
                     <div className="aspect-square overflow-hidden bg-gray-100">
                       <img
-                        src={image.image_url}
-                        alt={image.name}
+                        src={image.url}
+                        alt={image.filename}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -90,7 +90,7 @@ export default function ImagePicker({ onSelect, buttonText = "Select Image" }) {
                       </div>
                     )}
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                      <p className="text-white text-xs font-semibold truncate">{image.name}</p>
+                      <p className="text-white text-xs font-semibold truncate">{image.filename}</p>
                     </div>
                   </div>
                 ))}

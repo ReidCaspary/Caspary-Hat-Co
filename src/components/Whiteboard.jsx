@@ -4,7 +4,7 @@ import {
   Pencil, Type, Image as ImageIcon, ArrowRight, 
   Minus, Undo, Trash2, Download, MousePointer, Maximize, Minimize
 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { UploadFile } from "@/api/apiClient";
 
 const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
   const canvasRef = useRef(null);
@@ -609,7 +609,7 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
 
   const processImageFile = async (file) => {
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await UploadFile(file);
       
       const img = new Image();
       img.crossOrigin = "anonymous";

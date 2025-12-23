@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { ContactInquiry } from "@/api/apiClient";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,24 +38,14 @@ export default function Contact() {
   }, []);
   const createInquiry = useMutation({
     mutationFn: async (data) => {
-      let whiteboardImageUrl = null;
-
-      if (data.whiteboardData) {
-        const blob = await (await fetch(data.whiteboardData)).blob();
-        const file = new File([blob], "whiteboard.png", { type: "image/png" });
-        const { file_url } = await base44.integrations.Core.UploadFile({ file });
-        whiteboardImageUrl = file_url;
-      }
-
-      return base44.entities.ContactInquiry.create({
+      return ContactInquiry.create({
         name: data.name,
         email: data.email,
         phone: data.phone,
-        subject: data.subject,
+        event_type: data.subject,
         message: data.message,
         quantity: data.quantity,
-        whiteboard_image: whiteboardImageUrl,
-        whiteboard_data: data.whiteboardData
+        whiteboard_image: data.whiteboardData
       });
     },
     onSuccess: () => {

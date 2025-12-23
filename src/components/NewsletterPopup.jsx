@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { NewsletterSubscriber } from "@/api/apiClient";
 import { useMutation } from "@tanstack/react-query";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -49,50 +49,8 @@ export default function NewsletterPopup() {
 
   const signupMutation = useMutation({
     mutationFn: async (data) => {
-      const existing = await base44.entities.NewsletterSubscriber.filter({ email: data.email });
-      
-      if (existing.length > 0) {
-        throw new Error("DUPLICATE_EMAIL");
-      }
-
+      await NewsletterSubscriber.subscribe(data.email);
       const code = generateDiscountCode();
-      const subscriber = await base44.entities.NewsletterSubscriber.create({
-        first_name: data.first_name,
-        last_name: data.last_name,
-        email: data.email,
-        phone: data.phone || "",
-        discount_code: code,
-        code_used: false
-      });
-
-      await base44.integrations.Core.SendEmail({
-        to: data.email,
-        subject: "Your 20% Off Discount Code from Caspary Hat Co! 🧢",
-        body: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #172C63;">Welcome to Caspary Hat Co., ${data.first_name}!</h1>
-            <p style="font-size: 16px; color: #333;">Thank you for signing up! Here's your exclusive discount code:</p>
-            
-            <div style="background: #f8f9fa; border: 2px dashed #D18F63; padding: 20px; text-align: center; margin: 20px 0;">
-              <h2 style="color: #172C63; font-size: 32px; margin: 0;">${code}</h2>
-              <p style="color: #D18F63; font-size: 18px; font-weight: bold; margin: 10px 0 0 0;">20% OFF Your First Order!</p>
-            </div>
-
-            <p style="font-size: 16px; color: #333;">Use this code when ordering your custom hats to receive 20% off your entire first order.</p>
-            
-            <p style="font-size: 14px; color: #666;"><strong>Important:</strong> Our minimum order quantity is 144 hats (12 dozen). Perfect for events, corporate gifts, weddings, and team gear!</p>
-            
-            <div style="margin: 30px 0; text-align: center;">
-              <a href="${window.location.origin}/Contact" style="background: #172C63; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">Start Designing Your Custom Hats</a>
-            </div>
-
-            <p style="font-size: 14px; color: #666; margin-top: 30px;">Questions? Reply to this email or contact us at sales@casparyhats.com or (281) 814-8024.</p>
-            
-            <p style="font-size: 14px; color: #999; margin-top: 20px;">Caspary Hat Co. | Houston, TX | Custom Hats Made with Texas Pride</p>
-          </div>
-        `
-      });
-
       return { code };
     },
     onSuccess: (data) => {
@@ -132,43 +90,7 @@ export default function NewsletterPopup() {
       setError("Please enter your email address.");
       return;
     }
-
-    try {
-      const existing = await base44.entities.NewsletterSubscriber.filter({ email: formData.email });
-      if (existing.length === 0) {
-        setError("Email not found. Please sign up first.");
-        return;
-      }
-
-      const subscriber = existing[0];
-      await base44.integrations.Core.SendEmail({
-        to: formData.email,
-        subject: "Your Caspary Hat Co. Discount Code 🧢",
-        body: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #172C63;">Hi ${subscriber.first_name}!</h1>
-            <p style="font-size: 16px; color: #333;">Here's your exclusive discount code again:</p>
-            
-            <div style="background: #f8f9fa; border: 2px dashed #D18F63; padding: 20px; text-align: center; margin: 20px 0;">
-              <h2 style="color: #172C63; font-size: 32px; margin: 0;">${subscriber.discount_code}</h2>
-              <p style="color: #D18F63; font-size: 18px; font-weight: bold; margin: 10px 0 0 0;">20% OFF Your First Order!</p>
-            </div>
-
-            <p style="font-size: 16px; color: #333;">${subscriber.code_used ? 'This code has already been used.' : 'Use this code when ordering your custom hats!'}</p>
-            
-            <div style="margin: 30px 0; text-align: center;">
-              <a href="${window.location.origin}/Contact" style="background: #172C63; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">Contact Us</a>
-            </div>
-          </div>
-        `
-      });
-
-      setError("");
-      setDiscountCode(subscriber.discount_code);
-      setShowSuccess(true);
-    } catch (err) {
-      setError("Failed to resend code. Please try again.");
-    }
+    setError("Please sign up again to get a new discount code.");
   };
 
   const handleChange = (e) => {
