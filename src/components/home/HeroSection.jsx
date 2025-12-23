@@ -10,7 +10,7 @@ export default function HeroSection() {
       <div
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: 'url(https://base44.app/api/apps/68fd32ad207158d022276aa4/files/public/68fd32ad207158d022276aa4/40f87f033_WhatsAppImage2025-12-02at120041_2d78ec02.jpg)',
+          backgroundImage: 'url(https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517494/WhatsApp_Image_2025-12-02_at_12.00.41_2d78ec02_kyqx9y.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: '50% 50%'
         }}>

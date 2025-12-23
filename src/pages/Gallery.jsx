@@ -10,9 +10,9 @@ const galleryItems = [
     category: "Event",
     description: "Elegant Custom Memorabilia for Events",
     images: [
-      "https://base44.app/api/apps/68fd32ad207158d022276aa4/files/public/68fd32ad207158d022276aa4/f17387e4f_WhatsAppImage2025-10-27at163619_acadc270.jpg",
-      "https://base44.app/api/apps/68fd32ad207158d022276aa4/files/public/68fd32ad207158d022276aa4/577736ee0_WhatsAppImage2025-11-03at155215_6119fab8.jpg",
-      "https://base44.app/api/apps/68fd32ad207158d022276aa4/files/public/68fd32ad207158d022276aa4/5a3f94bdf_Dancers.jpg"
+      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517515/WhatsApp_Image_2025-10-27_at_16.36.19_acadc270_ik9j3h.jpg",
+      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517516/WhatsApp_Image_2025-11-03_at_15.52.15_6119fab8_mtukfz.jpg",
+      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517514/Dancers_zlksmi.jpg"
     ]
 
   },
@@ -21,8 +21,8 @@ const galleryItems = [
     category: "Business",
     description: "Premium Custom Hats for Corporate Branding",
     images: [
-      "https://base44.app/api/apps/68fd32ad207158d022276aa4/files/public/68fd32ad207158d022276aa4/92176b9e1_WhatsAppImage2025-10-27at163618_17db9e80.jpg",
-      "https://base44.app/api/apps/68fd32ad207158d022276aa4/files/public/68fd32ad207158d022276aa4/8d404d4d2_100Cotton.jpg"
+      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517515/WhatsApp_Image_2025-10-27_at_16.36.18_17db9e80_ltlg0x.jpg",
+      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517513/100_Cotton_gmcwn1.jpg"
     ]
 
   },
@@ -31,8 +31,8 @@ const galleryItems = [
     category: "Team Hats",
     description: "Custom Team Hats with Embroidered Mascot and Colors",
     images: [
-      "https://base44.app/api/apps/68fd32ad207158d022276aa4/files/public/68fd32ad207158d022276aa4/58c46ba22_ThethunderBaseball.jpg",
-      "https://base44.app/api/apps/68fd32ad207158d022276aa4/files/public/68fd32ad207158d022276aa4/ffbdd3aee_TheMudDogs.jpg"
+      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517514/The_thunder_Baseball_jgryfz.jpg",
+      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517514/The_Mud_Dogs_zcblz4.jpg"
     ]
 
   }];

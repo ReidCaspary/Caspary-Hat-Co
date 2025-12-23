@@ -8,19 +8,19 @@ const products = [
 {
   name: "The Classic",
   category: "Mesh Back",
-  image: "https://base44.app/api/apps/68fd32ad207158d022276aa4/files/public/68fd32ad207158d022276aa4/f17387e4f_WhatsAppImage2025-10-27at163619_acadc270.jpg",
+  image: "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517515/WhatsApp_Image_2025-10-27_at_16.36.19_acadc270_ik9j3h.jpg",
   description: "Classic Trucker Hat with Mesh Back. Available in 5 or 6 Panels"
 },
 {
   name: "The Caddie",
   category: "All Fabric",
-  image: "https://base44.app/api/apps/68fd32ad207158d022276aa4/files/public/68fd32ad207158d022276aa4/92176b9e1_WhatsAppImage2025-10-27at163618_17db9e80.jpg",
+  image: "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517515/WhatsApp_Image_2025-10-27_at_16.36.18_17db9e80_ltlg0x.jpg",
   description: "Classic Rope Hat With Mesh or Fabric Back"
 },
 {
   name: "The Corduroy",
   category: "Throwback Style",
-  image: "https://base44.app/api/apps/68fd32ad207158d022276aa4/files/public/68fd32ad207158d022276aa4/8d404d4d2_100Cotton.jpg",
+  image: "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517513/100_Cotton_gmcwn1.jpg",
   description: "100% Cotton Front with Mesh Back. Goes Great with a Patch"
 }];
 
