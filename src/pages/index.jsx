@@ -1,49 +1,34 @@
 import Layout from "./Layout.jsx";
 
 import Home from "./Home";
-
 import About from "./About";
-
 import Gallery from "./Gallery";
-
 import Products from "./Products";
-
 import Blog from "./Blog";
-
 import Contact from "./Contact";
-
 import FAQ from "./FAQ";
+import Login from "./Login";
+import Designer from "./Designer";
 
-import MediaLibrary from "./MediaLibrary";
-
-import AdminInquiries from "./AdminInquiries";
-
-import AdminNewsletterSubscribers from "./AdminNewsletterSubscribers";
+// Admin imports
+import Admin from "./Admin";
+import Dashboard from "./admin/Dashboard";
+import Inquiries from "./admin/Inquiries";
+import Newsletter from "./admin/Newsletter";
+import Media from "./admin/Media";
+import BlogAdmin from "./admin/BlogAdmin";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
-    
     Home: Home,
-    
     About: About,
-    
     Gallery: Gallery,
-    
     Products: Products,
-    
     Blog: Blog,
-    
     Contact: Contact,
-    
     FAQ: FAQ,
-    
-    MediaLibrary: MediaLibrary,
-    
-    AdminInquiries: AdminInquiries,
-    
-    AdminNewsletterSubscribers: AdminNewsletterSubscribers,
-    
+    Login: Login,
 }
 
 function _getCurrentPage(url) {
@@ -59,38 +44,23 @@ function _getCurrentPage(url) {
     return pageName || Object.keys(PAGES)[0];
 }
 
-// Create a wrapper component that uses useLocation inside the Router context
-function PagesContent() {
+// Public pages with main Layout
+function PublicContent() {
     const location = useLocation();
     const currentPage = _getCurrentPage(location.pathname);
-    
+
     return (
         <Layout currentPageName={currentPage}>
-            <Routes>            
-                
-                    <Route path="/" element={<Home />} />
-                
-                
+            <Routes>
+                <Route path="/" element={<Home />} />
                 <Route path="/Home" element={<Home />} />
-                
                 <Route path="/About" element={<About />} />
-                
                 <Route path="/Gallery" element={<Gallery />} />
-                
                 <Route path="/Products" element={<Products />} />
-                
                 <Route path="/Blog" element={<Blog />} />
-                
                 <Route path="/Contact" element={<Contact />} />
-                
                 <Route path="/FAQ" element={<FAQ />} />
-                
-                <Route path="/MediaLibrary" element={<MediaLibrary />} />
-                
-                <Route path="/AdminInquiries" element={<AdminInquiries />} />
-                
-                <Route path="/AdminNewsletterSubscribers" element={<AdminNewsletterSubscribers />} />
-                
+                <Route path="/Login" element={<Login />} />
             </Routes>
         </Layout>
     );
@@ -99,7 +69,22 @@ function PagesContent() {
 export default function Pages() {
     return (
         <Router>
-            <PagesContent />
+            <Routes>
+                {/* Admin routes - no main layout */}
+                <Route path="/admin" element={<Admin />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="inquiries" element={<Inquiries />} />
+                    <Route path="newsletter" element={<Newsletter />} />
+                    <Route path="media" element={<Media />} />
+                    <Route path="blog" element={<BlogAdmin />} />
+                </Route>
+
+                {/* Designer - standalone page without main layout */}
+                <Route path="/designer" element={<Designer />} />
+
+                {/* Public routes with main layout */}
+                <Route path="/*" element={<PublicContent />} />
+            </Routes>
         </Router>
     );
 }

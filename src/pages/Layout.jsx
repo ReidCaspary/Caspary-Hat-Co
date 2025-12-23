@@ -11,6 +11,7 @@ const navigationItems = [
 { name: "Home", url: createPageUrl("Home") },
 /*{ name: "About", url: createPageUrl("About") },*/
 { name: "Gallery", url: createPageUrl("Gallery") },
+{ name: "Design", url: "/designer" },
 { name: "FAQ", url: createPageUrl("FAQ") },
 { name: "Blog", url: createPageUrl("Blog") },
 { name: "Contact", url: createPageUrl("Contact") }];
@@ -137,54 +138,20 @@ export default function Layout({ children, currentPageName }) {
                 </Link>
               )}
               {user && user.role === 'admin' &&
-              <>
-                  <Link
-                  to={createPageUrl("MediaLibrary")}
-                  className={`text-sm font-semibold tracking-wide uppercase transition-colors relative group text-[var(--primary)] ${
-                  location.pathname === createPageUrl("MediaLibrary") ? 'opacity-100' : 'opacity-80 hover:opacity-100'}`
-                  }>
-
-                    Media
-                    <span
-                    className={`absolute -bottom-1 left-0 w-full h-0.5 bg-[var(--accent)] transform origin-left transition-transform ${
-                    location.pathname === createPageUrl("MediaLibrary") ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`
-                    } />
-
-                  </Link>
-                  <Link
-                  to={createPageUrl("AdminInquiries")}
-                  className={`text-sm font-semibold tracking-wide uppercase transition-colors relative group text-[var(--primary)] ${
-                  location.pathname === createPageUrl("AdminInquiries") ? 'opacity-100' : 'opacity-80 hover:opacity-100'}`
-                  }>
-
-                    Inquiries
-                    <span
-                    className={`absolute -bottom-1 left-0 w-full h-0.5 bg-[var(--accent)] transform origin-left transition-transform ${
-                    location.pathname === createPageUrl("AdminInquiries") ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`
-                    } />
-
-                  </Link>
-                  <Link
-                  to={createPageUrl("AdminNewsletterSubscribers")}
-                  className={`text-sm font-semibold tracking-wide uppercase transition-colors relative group text-[var(--primary)] ${
-                  location.pathname === createPageUrl("AdminNewsletterSubscribers") ? 'opacity-100' : 'opacity-80 hover:opacity-100'}`
-                  }>
-
-                    Newsletter
-                    <span
-                    className={`absolute -bottom-1 left-0 w-full h-0.5 bg-[var(--accent)] transform origin-left transition-transform ${
-                    location.pathname === createPageUrl("AdminNewsletterSubscribers") ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`
-                    } />
-
-                  </Link>
-                  </>
-                  }
+                <Link
+                  to="/admin"
+                  className="text-sm font-semibold tracking-wide uppercase transition-colors relative group text-[var(--primary)] opacity-80 hover:opacity-100"
+                >
+                  Admin
+                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[var(--accent)] transform origin-left transition-transform scale-x-0 group-hover:scale-x-100" />
+                </Link>
+              }
             </nav>
 
             <div className="hidden lg:block">
-              <Link to={createPageUrl("Contact")}>
+              <Link to="/designer">
                 <Button className="bg-[var(--primary)] hover:bg-[var(--accent)] text-white font-semibold px-4 lg:px-6 py-2 lg:py-3 text-sm rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                  Get Quote
+                  Design Your Hat
                 </Button>
               </Link>
             </div>
@@ -216,42 +183,16 @@ export default function Layout({ children, currentPageName }) {
                 </Link>
             )}
               {user && user.role === 'admin' &&
-            <>
-                  <Link
-                to={createPageUrl("MediaLibrary")}
-                className={`block text-base font-semibold tracking-wide uppercase transition-colors ${
-                location.pathname === createPageUrl("MediaLibrary") ?
-                'text-[var(--primary)]' :
-                'text-[var(--gray-dark)] hover:text-[var(--accent)]'}`
-                }>
-
-                    Media Library
-                  </Link>
-                  <Link
-                to={createPageUrl("AdminInquiries")}
-                className={`block text-base font-semibold tracking-wide uppercase transition-colors ${
-                location.pathname === createPageUrl("AdminInquiries") ?
-                'text-[var(--primary)]' :
-                'text-[var(--gray-dark)] hover:text-[var(--accent)]'}`
-                }>
-
-                    Inquiries
-                  </Link>
-                  <Link
-                to={createPageUrl("AdminNewsletterSubscribers")}
-                className={`block text-base font-semibold tracking-wide uppercase transition-colors ${
-                location.pathname === createPageUrl("AdminNewsletterSubscribers") ?
-                'text-[var(--primary)]' :
-                'text-[var(--gray-dark)] hover:text-[var(--accent)]'}`
-                }>
-
-                    Newsletter
-                  </Link>
-                </>
-            }
-              <Link to={createPageUrl("Contact")} className="block pt-2">
+                <Link
+                  to="/admin"
+                  className="block text-base font-semibold tracking-wide uppercase transition-colors text-[var(--gray-dark)] hover:text-[var(--accent)]"
+                >
+                  Admin Dashboard
+                </Link>
+              }
+              <Link to="/designer" className="block pt-2">
                 <Button className="w-full bg-[var(--primary)] hover:bg-[var(--accent)] text-white font-semibold py-3 rounded-lg transition-all duration-300">
-                  Get Quote
+                  Design Your Hat
                 </Button>
               </Link>
             </div>

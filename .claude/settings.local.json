@@ -4,7 +4,10 @@
       "Bash(dir:*)",
       "Bash(mkdir:*)",
       "Bash(cat:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "WebFetch(domain:www.customink.com)",
+      "WebSearch"
     ]
   }
 }
