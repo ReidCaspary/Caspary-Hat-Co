@@ -68,6 +68,28 @@ export const deleteImage = async (publicId) => {
   }
 };
 
+// Remove background from image using Cloudinary AI
+export const removeBackground = async (publicId) => {
+  try {
+    // Generate URL with background removal and PNG format for transparency
+    const transformedUrl = cloudinary.url(publicId, {
+      transformation: [
+        { effect: 'background_removal' },
+        { format: 'png' }
+      ],
+      secure: true
+    });
+
+    return {
+      url: transformedUrl,
+      publicId: publicId
+    };
+  } catch (error) {
+    console.error('Cloudinary background removal error:', error);
+    throw error;
+  }
+};
+
 // Generate signed URL for private files
 export const getSignedUrl = (publicId, options = {}) => {
   const defaultOptions = {

@@ -9,6 +9,7 @@ import contactRoutes from './routes/contact.js';
 import blogRoutes from './routes/blog.js';
 import newsletterRoutes from './routes/newsletter.js';
 import imagesRoutes from './routes/images.js';
+import designerRoutes from './routes/designer.js';
 
 dotenv.config();
 
@@ -62,6 +63,7 @@ app.use('/api', contactRoutes); // Also mount at /api for /api/inquiries
 app.use('/api/blog', blogRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/images', imagesRoutes);
+app.use('/api/designer', designerRoutes);
 
 // 404 handler
 app.use('/api/*', (req, res) => {

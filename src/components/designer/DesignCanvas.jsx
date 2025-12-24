@@ -45,24 +45,31 @@ const DesignCanvas = forwardRef(function DesignCanvas(
   const containerRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [loadedImages, setLoadedImages] = useState({});
+  const [loadedImages, setLoadedImages] = useState({}); // { elementId: { img, url } }
 
   const config = HAT_CONFIG[design.hatStyle] || HAT_CONFIG.classic;
   const designArea = config[design.currentView];
 
-  // Load images for image elements
+  // Load images for image elements - reload when URL changes
   useEffect(() => {
     design.elements.forEach((element) => {
-      if (element.type === "image" && element.url && !loadedImages[element.id]) {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => {
-          setLoadedImages((prev) => ({ ...prev, [element.id]: img }));
-        };
-        img.src = element.url;
+      if (element.type === "image" && element.url) {
+        const cached = loadedImages[element.id];
+        // Load if not cached or if URL has changed
+        if (!cached || cached.url !== element.url) {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            setLoadedImages((prev) => ({
+              ...prev,
+              [element.id]: { img, url: element.url }
+            }));
+          };
+          img.src = element.url;
+        }
       }
     });
-  }, [design.elements, loadedImages]);
+  }, [design.elements]);
 
   // Expose export function
   useImperativeHandle(ref, () => ({
@@ -102,8 +109,8 @@ const DesignCanvas = forwardRef(function DesignCanvas(
 
       if (element.type === "text") {
         drawTextElement(ctx, element, isSelected);
-      } else if (element.type === "image" && loadedImages[element.id]) {
-        drawImageElement(ctx, element, loadedImages[element.id], isSelected);
+      } else if (element.type === "image" && loadedImages[element.id]?.img) {
+        drawImageElement(ctx, element, loadedImages[element.id].img, isSelected);
       }
     });
   }, [design, selectedElementId, loadedImages, config, designArea]);

@@ -3,8 +3,9 @@ import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Upload, Trash2, Loader2 } from "lucide-react";
-import { UploadFile } from "@/api/apiClient";
+import { Upload, Trash2, Loader2, Palette } from "lucide-react";
+import { DesignerAPI } from "@/api/apiClient";
+import ImageColorEditor from "./ImageColorEditor";
 
 export default function ImageUploader({
   onAddImage,
@@ -16,6 +17,7 @@ export default function ImageUploader({
   const [error, setError] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [imageSize, setImageSize] = useState(100);
+  const [showColorEditor, setShowColorEditor] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -26,18 +28,35 @@ export default function ImageUploader({
     reader.onload = () => setPreviewUrl(reader.result);
     reader.readAsDataURL(file);
 
-    // Upload to Cloudinary
+    // Upload to Cloudinary via designer endpoint
     setUploading(true);
     setError(null);
 
     try {
-      const result = await UploadFile(file);
+      const result = await DesignerAPI.uploadImage(file);
+
+      // Calculate dimensions maintaining aspect ratio, scaled to fit within imageSize
+      const aspectRatio = result.width / result.height;
+      let width, height;
+
+      if (aspectRatio >= 1) {
+        // Landscape or square - width is the constraint
+        width = imageSize;
+        height = Math.round(imageSize / aspectRatio);
+      } else {
+        // Portrait - height is the constraint
+        height = imageSize;
+        width = Math.round(imageSize * aspectRatio);
+      }
 
       onAddImage({
         type: "image",
-        url: result.file_url,
-        width: imageSize,
-        height: imageSize,
+        url: result.url,
+        publicId: result.publicId,
+        width: width,
+        height: height,
+        originalWidth: result.width,
+        originalHeight: result.height,
         x: 200,
         y: 120,
       });
@@ -50,6 +69,15 @@ export default function ImageUploader({
       setUploading(false);
     }
   }, [onAddImage, imageSize]);
+
+  const handleColorEditComplete = (editedImageUrl) => {
+    if (selectedElement && editedImageUrl) {
+      onUpdateElement(selectedElement.id, {
+        url: editedImageUrl,
+      });
+    }
+    setShowColorEditor(false);
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -139,10 +167,16 @@ export default function ImageUploader({
         </>
       )}
 
-      {selectedElement && (
+      {selectedElement && !showColorEditor && (
         <>
-          {/* Preview of selected image */}
-          <div className="bg-white p-4 rounded-lg border text-center">
+          {/* Preview of selected image - checkered bg shows transparency */}
+          <div
+            className="p-4 rounded-lg border text-center"
+            style={{
+              backgroundImage: 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAADFJREFUOE9jZGBg+M+ABxw9epSRkZERl0p0cYb/DAwM/4lRi64Gqy5kNfgMINYLxKgBAJSQD/eo5GMaAAAAAElFTkSuQmCC")',
+              backgroundRepeat: 'repeat'
+            }}
+          >
             <img
               src={selectedElement.url}
               alt="Selected"
@@ -167,6 +201,17 @@ export default function ImageUploader({
             />
           </div>
 
+          {/* Color editor button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowColorEditor(true)}
+            className="w-full"
+          >
+            <Palette className="w-4 h-4 mr-2" />
+            Edit Colors & Background
+          </Button>
+
           {/* Delete button */}
           <Button
             variant="destructive"
@@ -178,6 +223,14 @@ export default function ImageUploader({
             Remove Image
           </Button>
         </>
+      )}
+
+      {selectedElement && showColorEditor && (
+        <ImageColorEditor
+          imageUrl={selectedElement.url}
+          onComplete={handleColorEditComplete}
+          onCancel={() => setShowColorEditor(false)}
+        />
       )}
 
       {/* Tip */}

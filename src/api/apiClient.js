@@ -253,6 +253,26 @@ export const Image = {
   }
 };
 
+// Designer API (for hat designer tool)
+export const DesignerAPI = {
+  async uploadImage(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    return apiFetch('/api/designer/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
+  async removeBackground(publicId) {
+    return apiFetch('/api/designer/remove-background', {
+      method: 'POST',
+      body: JSON.stringify({ publicId }),
+    });
+  }
+};
+
 // File upload utility (for contact form attachments)
 export const UploadFile = async (file) => {
   const formData = new FormData();
@@ -272,5 +292,6 @@ export default {
   BlogPost,
   NewsletterSubscriber,
   Image,
+  DesignerAPI,
   UploadFile,
 };
