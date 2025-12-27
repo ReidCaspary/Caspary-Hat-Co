@@ -61,6 +61,70 @@ CREATE TABLE IF NOT EXISTS images (
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Hat types table (classic, caddie, etc.)
+CREATE TABLE IF NOT EXISTS hat_types (
+    id SERIAL PRIMARY KEY,
+    slug VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    category VARCHAR(50),
+    preview_image_url TEXT,
+    front_image_url TEXT,
+    back_image_url TEXT,
+    display_order INTEGER DEFAULT 0,
+    active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Colorizable parts for each hat type
+CREATE TABLE IF NOT EXISTS hat_parts (
+    id SERIAL PRIMARY KEY,
+    hat_type_id INTEGER REFERENCES hat_types(id) ON DELETE CASCADE,
+    part_id VARCHAR(50) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    default_color VARCHAR(7) DEFAULT '#ffffff',
+    display_order INTEGER DEFAULT 0
+);
+
+-- Canvas configuration per hat type
+CREATE TABLE IF NOT EXISTS hat_canvas_config (
+    id SERIAL PRIMARY KEY,
+    hat_type_id INTEGER UNIQUE REFERENCES hat_types(id) ON DELETE CASCADE,
+    width INTEGER DEFAULT 400,
+    height INTEGER DEFAULT 300,
+    front_design_x INTEGER DEFAULT 100,
+    front_design_y INTEGER DEFAULT 60,
+    front_design_width INTEGER DEFAULT 200,
+    front_design_height INTEGER DEFAULT 120,
+    back_design_x INTEGER DEFAULT 100,
+    back_design_y INTEGER DEFAULT 80,
+    back_design_width INTEGER DEFAULT 200,
+    back_design_height INTEGER DEFAULT 100
+);
+
+-- Color presets available for selection
+CREATE TABLE IF NOT EXISTS color_presets (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    hex VARCHAR(7) NOT NULL,
+    display_order INTEGER DEFAULT 0,
+    active BOOLEAN DEFAULT true
+);
+
+-- Pre-defined color combinations
+CREATE TABLE IF NOT EXISTS color_combinations (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    front_color VARCHAR(7) NOT NULL,
+    mesh_color VARCHAR(7) NOT NULL,
+    brim_color VARCHAR(7) NOT NULL,
+    rope_color VARCHAR(7),
+    display_order INTEGER DEFAULT 0,
+    active BOOLEAN DEFAULT true
+);
+
 -- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_blog_posts_published ON blog_posts(published);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_category ON blog_posts(category);
@@ -68,3 +132,7 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug);
 CREATE INDEX IF NOT EXISTS idx_contact_inquiries_status ON contact_inquiries(status);
 CREATE INDEX IF NOT EXISTS idx_images_category ON images(category);
 CREATE INDEX IF NOT EXISTS idx_newsletter_active ON newsletter_subscribers(active);
+CREATE INDEX IF NOT EXISTS idx_hat_types_active ON hat_types(active);
+CREATE INDEX IF NOT EXISTS idx_hat_types_slug ON hat_types(slug);
+CREATE INDEX IF NOT EXISTS idx_hat_parts_hat_type ON hat_parts(hat_type_id);
+CREATE INDEX IF NOT EXISTS idx_color_presets_active ON color_presets(active);

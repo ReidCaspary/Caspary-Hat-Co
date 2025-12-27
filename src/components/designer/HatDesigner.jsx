@@ -1,5 +1,6 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import StyleSelector from "./StyleSelector";
@@ -10,6 +11,7 @@ import TextEditor from "./TextEditor";
 import ImageUploader from "./ImageUploader";
 import PricingPanel from "./PricingPanel";
 import SubmitForm from "./SubmitForm";
+import { fetchHatConfig, DEFAULT_CONFIG, getDefaultColors } from "@/config/hatConfig";
 
 const STEPS = [
   { id: 1, name: "Style", description: "Choose your hat style" },
@@ -24,12 +26,20 @@ export default function HatDesigner() {
   const [selectedElementId, setSelectedElementId] = useState(null);
   const canvasRef = useRef(null);
 
+  // Fetch hat configuration from API with fallback to defaults
+  const { data: config = DEFAULT_CONFIG, isLoading: configLoading } = useQuery({
+    queryKey: ['hatConfig'],
+    queryFn: fetchHatConfig,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
   const [design, setDesign] = useState({
     hatStyle: null,
     colors: {
       front: "#172c63",
-      back: "#ffffff",
+      mesh: "#ffffff",
       brim: "#172c63",
+      rope: "#ffffff",
     },
     elements: [],
     currentView: "front",
@@ -169,7 +179,12 @@ export default function HatDesigner() {
           {currentStep === 1 && (
             <StyleSelector
               selectedStyle={design.hatStyle}
-              onSelectStyle={(style) => updateDesign({ hatStyle: style })}
+              hatTypes={config.hatTypes}
+              onSelectStyle={(style) => {
+                // Apply default colors for the selected hat style
+                const defaultColors = getDefaultColors(style, config.hatTypes);
+                updateDesign({ hatStyle: style, colors: defaultColors });
+              }}
             />
           )}
 
@@ -177,6 +192,9 @@ export default function HatDesigner() {
             <ColorPicker
               colors={design.colors}
               hatStyle={design.hatStyle}
+              hatTypes={config.hatTypes}
+              colorPresets={config.colorPresets}
+              colorCombinations={config.colorCombinations}
               onColorChange={(part, color) =>
                 updateDesign({ colors: { ...design.colors, [part]: color } })
               }
@@ -251,6 +269,7 @@ export default function HatDesigner() {
             <DesignCanvas
               ref={canvasRef}
               design={design}
+              hatTypes={config.hatTypes}
               selectedElementId={selectedElementId}
               onSelectElement={setSelectedElementId}
               onUpdateElement={updateElement}

@@ -273,6 +273,100 @@ export const DesignerAPI = {
   }
 };
 
+// Hat Configuration API (for admin and designer)
+export const HatConfig = {
+  // Public endpoint - get full config for designer
+  async getConfig() {
+    const response = await fetch(`${API_URL}/api/hat-config`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch hat configuration');
+    }
+    return response.json();
+  },
+
+  // Admin endpoints - Hat Types
+  async getHatTypes() {
+    return apiFetch('/api/hat-config/hat-types');
+  },
+
+  async createHatType(data) {
+    return apiFetch('/api/hat-config/hat-types', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateHatType(id, data) {
+    return apiFetch(`/api/hat-config/hat-types/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteHatType(id) {
+    return apiFetch(`/api/hat-config/hat-types/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Admin endpoints - Color Presets
+  async getColorPresets() {
+    return apiFetch('/api/hat-config/colors');
+  },
+
+  async createColorPreset(data) {
+    return apiFetch('/api/hat-config/colors', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateColorPreset(id, data) {
+    return apiFetch(`/api/hat-config/colors/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteColorPreset(id) {
+    return apiFetch(`/api/hat-config/colors/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async reorderColorPresets(order) {
+    return apiFetch('/api/hat-config/colors/reorder', {
+      method: 'PUT',
+      body: JSON.stringify({ order }),
+    });
+  },
+
+  // Admin endpoints - Color Combinations
+  async getColorCombinations() {
+    return apiFetch('/api/hat-config/combinations');
+  },
+
+  async createColorCombination(data) {
+    return apiFetch('/api/hat-config/combinations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateColorCombination(id, data) {
+    return apiFetch(`/api/hat-config/combinations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteColorCombination(id) {
+    return apiFetch(`/api/hat-config/combinations/${id}`, {
+      method: 'DELETE',
+    });
+  }
+};
+
 // File upload utility (for contact form attachments)
 export const UploadFile = async (file) => {
   const formData = new FormData();
@@ -293,5 +387,6 @@ export default {
   NewsletterSubscriber,
   Image,
   DesignerAPI,
+  HatConfig,
   UploadFile,
 };

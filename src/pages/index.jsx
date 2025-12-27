@@ -17,6 +17,7 @@ import Inquiries from "./admin/Inquiries";
 import Newsletter from "./admin/Newsletter";
 import Media from "./admin/Media";
 import BlogAdmin from "./admin/BlogAdmin";
+import HatConfig from "./admin/HatConfig";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
@@ -77,6 +78,7 @@ export default function Pages() {
                     <Route path="newsletter" element={<Newsletter />} />
                     <Route path="media" element={<Media />} />
                     <Route path="blog" element={<BlogAdmin />} />
+                    <Route path="hat-config" element={<HatConfig />} />
                 </Route>
 
                 {/* Designer - standalone page without main layout */}

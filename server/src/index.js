@@ -10,6 +10,7 @@ import blogRoutes from './routes/blog.js';
 import newsletterRoutes from './routes/newsletter.js';
 import imagesRoutes from './routes/images.js';
 import designerRoutes from './routes/designer.js';
+import hatConfigRoutes from './routes/hatConfig.js';
 
 dotenv.config();
 
@@ -64,6 +65,7 @@ app.use('/api/blog', blogRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/images', imagesRoutes);
 app.use('/api/designer', designerRoutes);
+app.use('/api/hat-config', hatConfigRoutes);
 
 // 404 handler
 app.use('/api/*', (req, res) => {

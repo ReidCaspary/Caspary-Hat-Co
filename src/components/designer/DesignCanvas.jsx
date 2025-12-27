@@ -1,44 +1,17 @@
 import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef, useCallback } from "react";
 
-// Hat mockup dimensions and design areas
-const HAT_CONFIG = {
-  classic: {
-    width: 400,
-    height: 300,
-    front: {
-      // Design area for front of hat (relative to canvas)
-      x: 100,
-      y: 60,
-      width: 200,
-      height: 120,
-    },
-    back: {
-      x: 100,
-      y: 80,
-      width: 200,
-      height: 100,
-    },
-  },
-  caddie: {
-    width: 400,
-    height: 300,
-    front: {
-      x: 100,
-      y: 50,
-      width: 200,
-      height: 130,
-    },
-    back: {
-      x: 100,
-      y: 80,
-      width: 200,
-      height: 100,
-    },
+// Default canvas config fallback
+const DEFAULT_CANVAS_CONFIG = {
+  width: 400,
+  height: 300,
+  designArea: {
+    front: { x: 100, y: 60, width: 200, height: 120 },
+    back: { x: 100, y: 80, width: 200, height: 100 },
   },
 };
 
 const DesignCanvas = forwardRef(function DesignCanvas(
-  { design, selectedElementId, onSelectElement, onUpdateElement, onViewChange },
+  { design, hatTypes, selectedElementId, onSelectElement, onUpdateElement, onViewChange },
   ref
 ) {
   const canvasRef = useRef(null);
@@ -46,9 +19,13 @@ const DesignCanvas = forwardRef(function DesignCanvas(
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [loadedImages, setLoadedImages] = useState({}); // { elementId: { img, url } }
+  const [hatImages, setHatImages] = useState({}); // { "classic-front": img, "classic-back": img, ... }
 
-  const config = HAT_CONFIG[design.hatStyle] || HAT_CONFIG.classic;
-  const designArea = config[design.currentView];
+  // Get hat type config from passed hatTypes prop
+  const firstHatType = Object.values(hatTypes || {})[0];
+  const hatTypeConfig = hatTypes?.[design.hatStyle] || firstHatType || {};
+  const canvasConfig = hatTypeConfig.canvas || DEFAULT_CANVAS_CONFIG;
+  const designArea = canvasConfig.designArea?.[design.currentView] || DEFAULT_CANVAS_CONFIG.designArea[design.currentView];
 
   // Load images for image elements - reload when URL changes
   useEffect(() => {
@@ -71,6 +48,43 @@ const DesignCanvas = forwardRef(function DesignCanvas(
     });
   }, [design.elements]);
 
+  // Get current hat config for image URLs
+  const currentHatConfig = hatTypes?.[design.hatStyle];
+  const frontImageUrl = currentHatConfig?.images?.front;
+  const backImageUrl = currentHatConfig?.images?.back;
+
+  // Load hat images for current hat type
+  useEffect(() => {
+    if (!design.hatStyle || !hatTypes) return;
+
+    const hatConfig = hatTypes[design.hatStyle];
+    if (!hatConfig?.images) return;
+
+    // Load front and back images for this hat type
+    ["front", "back"].forEach((view) => {
+      const imageKey = `${design.hatStyle}-${view}`;
+      const imagePath = hatConfig.images[view];
+
+      // Check if we need to load/reload (new URL or not loaded yet)
+      const currentImage = hatImages[imageKey];
+      if (imagePath && (!currentImage || currentImage.src !== imagePath)) {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          setHatImages((prev) => ({
+            ...prev,
+            [imageKey]: img
+          }));
+        };
+        img.onerror = () => {
+          // Image not found - will fall back to colored shapes only
+          console.warn(`Hat image not found: ${imagePath}`);
+        };
+        img.src = imagePath;
+      }
+    });
+  }, [design.hatStyle, frontImageUrl, backImageUrl]);
+
   // Expose export function
   useImperativeHandle(ref, () => ({
     exportCanvas: () => {
@@ -90,8 +104,12 @@ const DesignCanvas = forwardRef(function DesignCanvas(
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw hat background (simulated with colors)
-    drawHatMockup(ctx, design.colors, design.currentView, config);
+    // Get hat image for current view (if available)
+    const hatImageKey = `${design.hatStyle}-${design.currentView}`;
+    const hatImage = hatImages[hatImageKey];
+
+    // Draw hat with colors (and overlay image if available)
+    drawHatMockup(ctx, design.colors, design.currentView, canvasConfig, design.hatStyle, hatImage);
 
     // Draw design area boundary (subtle guide)
     ctx.strokeStyle = "rgba(0,0,0,0.1)";
@@ -113,18 +131,18 @@ const DesignCanvas = forwardRef(function DesignCanvas(
         drawImageElement(ctx, element, loadedImages[element.id].img, isSelected);
       }
     });
-  }, [design, selectedElementId, loadedImages, config, designArea]);
+  }, [design, selectedElementId, loadedImages, canvasConfig, designArea, hatImages]);
 
   useEffect(() => {
     drawCanvas();
   }, [drawCanvas]);
 
-  const drawHatMockup = (ctx, colors, view, cfg) => {
-    // Draw simplified hat shape with selected colors
+  const drawHatMockup = (ctx, colors, view, cfg, hatStyle, hatImage) => {
+    // Draw colored shapes as background, then overlay hat image
     const centerX = cfg.width / 2;
 
     if (view === "front") {
-      // Draw brim
+      // Draw brim/bill
       ctx.fillStyle = colors.brim;
       ctx.beginPath();
       ctx.ellipse(centerX, 240, 150, 30, 0, 0, Math.PI);
@@ -138,8 +156,8 @@ const DesignCanvas = forwardRef(function DesignCanvas(
       ctx.lineTo(50, 240);
       ctx.fill();
 
-      // Draw mesh/back peek (sides)
-      ctx.fillStyle = colors.back;
+      // Draw mesh (sides visible from front)
+      ctx.fillStyle = colors.mesh;
       ctx.beginPath();
       ctx.moveTo(50, 240);
       ctx.quadraticCurveTo(20, 150, 60, 80);
@@ -154,6 +172,18 @@ const DesignCanvas = forwardRef(function DesignCanvas(
       ctx.quadraticCurveTo(360, 160, 350, 240);
       ctx.fill();
 
+      // Draw rope for caddie hats
+      if (hatStyle === "caddie" && colors.rope) {
+        ctx.fillStyle = colors.rope;
+        ctx.beginPath();
+        // Rope runs along the base of the front panel
+        ctx.moveTo(70, 235);
+        ctx.quadraticCurveTo(centerX, 215, 330, 235);
+        ctx.lineTo(330, 240);
+        ctx.quadraticCurveTo(centerX, 220, 70, 240);
+        ctx.fill();
+      }
+
       // Add subtle outline
       ctx.strokeStyle = "rgba(0,0,0,0.2)";
       ctx.lineWidth = 2;
@@ -164,7 +194,7 @@ const DesignCanvas = forwardRef(function DesignCanvas(
 
     } else {
       // Back view
-      ctx.fillStyle = colors.back;
+      ctx.fillStyle = colors.mesh;
       ctx.beginPath();
       ctx.moveTo(50, 240);
       ctx.quadraticCurveTo(centerX, 40, 350, 240);
@@ -182,6 +212,13 @@ const DesignCanvas = forwardRef(function DesignCanvas(
       ctx.beginPath();
       ctx.arc(centerX, 200, 20, 0, Math.PI * 2);
       ctx.fill();
+    }
+
+    // If hat image is loaded, overlay it with multiply blend mode
+    if (hatImage) {
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.drawImage(hatImage, 0, 0, cfg.width, cfg.height);
+      ctx.globalCompositeOperation = 'source-over';
     }
   };
 
@@ -347,8 +384,8 @@ const DesignCanvas = forwardRef(function DesignCanvas(
     >
       <canvas
         ref={canvasRef}
-        width={config.width}
-        height={config.height}
+        width={canvasConfig.width}
+        height={canvasConfig.height}
         className="cursor-crosshair max-w-full h-auto"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}

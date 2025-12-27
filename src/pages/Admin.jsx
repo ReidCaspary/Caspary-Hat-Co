@@ -11,7 +11,8 @@ import {
   Menu,
   X,
   ChevronRight,
-  Home
+  Home,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -21,6 +22,7 @@ const adminNavItems = [
   { name: "Newsletter Subscribers", path: "/admin/newsletter", icon: Mail },
   { name: "Media Library", path: "/admin/media", icon: Image },
   { name: "Blog Posts", path: "/admin/blog", icon: FileText },
+  { name: "Hat Designer Config", path: "/admin/hat-config", icon: Settings },
 ];
 
 export default function Admin() {

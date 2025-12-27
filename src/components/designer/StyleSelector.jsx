@@ -1,26 +1,10 @@
 import React from "react";
 import { Check } from "lucide-react";
 
-const HAT_STYLES = [
-  {
-    id: "classic",
-    name: "The Classic",
-    description: "Classic Trucker Hat with Mesh Back. Available in 5 or 6 Panels.",
-    category: "Mesh Back",
-    // Placeholder - user will provide actual mockup images
-    image: "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517515/WhatsApp_Image_2025-10-27_at_16.36.19_acadc270_ik9j3h.jpg",
-  },
-  {
-    id: "caddie",
-    name: "The Caddie",
-    description: "Classic Rope Hat with Mesh or Fabric Back. Perfect for a vintage look.",
-    category: "Rope Hat",
-    // Placeholder - user will provide actual mockup images
-    image: "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517515/WhatsApp_Image_2025-10-27_at_16.36.18_17db9e80_ltlg0x.jpg",
-  },
-];
+export default function StyleSelector({ selectedStyle, hatTypes, onSelectStyle }) {
+  // Convert hatTypes object to array for rendering
+  const hatStyles = Object.values(hatTypes || {});
 
-export default function StyleSelector({ selectedStyle, onSelectStyle }) {
   return (
     <div className="space-y-4">
       <div>
@@ -29,7 +13,7 @@ export default function StyleSelector({ selectedStyle, onSelectStyle }) {
       </div>
 
       <div className="space-y-3">
-        {HAT_STYLES.map((style) => (
+        {hatStyles.map((style) => (
           <div
             key={style.id}
             onClick={() => onSelectStyle(style.id)}
@@ -49,7 +33,7 @@ export default function StyleSelector({ selectedStyle, onSelectStyle }) {
             {/* Image */}
             <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
               <img
-                src={style.image}
+                src={style.previewImage}
                 alt={style.name}
                 className="w-full h-full object-cover"
               />

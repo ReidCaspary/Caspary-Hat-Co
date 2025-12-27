@@ -1,40 +1,13 @@
 import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Palette } from "lucide-react";
 
-const PRESET_COLORS = [
-  { name: "Navy", hex: "#172c63" },
-  { name: "Black", hex: "#000000" },
-  { name: "White", hex: "#ffffff" },
-  { name: "Gray", hex: "#6b7280" },
-  { name: "Red", hex: "#dc2626" },
-  { name: "Orange", hex: "#d18f63" },
-  { name: "Green", hex: "#16a34a" },
-  { name: "Royal Blue", hex: "#2563eb" },
-  { name: "Maroon", hex: "#7f1d1d" },
-  { name: "Tan", hex: "#d4a574" },
-  { name: "Camo Green", hex: "#4a5c3a" },
-  { name: "Pink", hex: "#ec4899" },
-];
-
-const COLOR_PARTS = {
-  classic: [
-    { id: "front", name: "Front Panel", description: "The front fabric panels" },
-    { id: "back", name: "Back Mesh", description: "The mesh back panels" },
-    { id: "brim", name: "Brim", description: "The hat brim/bill" },
-  ],
-  caddie: [
-    { id: "front", name: "Front Panel", description: "The front fabric" },
-    { id: "back", name: "Back Panel", description: "The back fabric" },
-    { id: "brim", name: "Brim", description: "The hat brim/bill" },
-  ],
-};
-
-export default function ColorPicker({ colors, hatStyle, onColorChange }) {
+export default function ColorPicker({ colors, hatStyle, hatTypes, colorPresets, colorCombinations, onColorChange }) {
   const [activeColorPart, setActiveColorPart] = useState("front");
 
-  const parts = COLOR_PARTS[hatStyle] || COLOR_PARTS.classic;
+  // Get parts from hat type config (passed from parent)
+  const hatTypeConfig = hatTypes?.[hatStyle] || Object.values(hatTypes || {})[0] || { parts: [] };
+  const parts = hatTypeConfig.parts || [];
 
   return (
     <div className="space-y-6">
@@ -75,10 +48,10 @@ export default function ColorPicker({ colors, hatStyle, onColorChange }) {
       {/* Color Presets */}
       <div>
         <Label className="text-sm font-medium text-gray-700 mb-2 block">
-          Quick Colors
+          Select Color
         </Label>
         <div className="grid grid-cols-6 gap-2">
-          {PRESET_COLORS.map((color) => (
+          {(colorPresets || []).map((color) => (
             <button
               key={color.hex}
               onClick={() => onColorChange(activeColorPart, color.hex)}
@@ -94,48 +67,22 @@ export default function ColorPicker({ colors, hatStyle, onColorChange }) {
         </div>
       </div>
 
-      {/* Custom Color Input */}
-      <div>
-        <Label className="text-sm font-medium text-gray-700 mb-2 block">
-          Custom Color
-        </Label>
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Input
-              type="text"
-              value={colors[activeColorPart]}
-              onChange={(e) => onColorChange(activeColorPart, e.target.value)}
-              placeholder="#000000"
-              className="pl-12 font-mono"
-            />
-            <input
-              type="color"
-              value={colors[activeColorPart]}
-              onChange={(e) => onColorChange(activeColorPart, e.target.value)}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded cursor-pointer border-0"
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Popular Combinations */}
       <div>
         <Label className="text-sm font-medium text-gray-700 mb-2 block">
           Popular Combinations
         </Label>
         <div className="space-y-2">
-          {[
-            { name: "Classic Navy", front: "#172c63", back: "#ffffff", brim: "#172c63" },
-            { name: "All Black", front: "#000000", back: "#000000", brim: "#000000" },
-            { name: "Texas Orange", front: "#d18f63", back: "#ffffff", brim: "#d18f63" },
-            { name: "Camo", front: "#4a5c3a", back: "#4a5c3a", brim: "#4a5c3a" },
-          ].map((combo) => (
+          {(colorCombinations || []).map((combo) => (
             <button
               key={combo.name}
               onClick={() => {
                 onColorChange("front", combo.front);
-                onColorChange("back", combo.back);
+                onColorChange("mesh", combo.mesh);
                 onColorChange("brim", combo.brim);
+                if (combo.rope) {
+                  onColorChange("rope", combo.rope);
+                }
               }}
               className="w-full flex items-center gap-3 p-2 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
             >
@@ -146,7 +93,7 @@ export default function ColorPicker({ colors, hatStyle, onColorChange }) {
                 />
                 <div
                   className="w-6 h-6 rounded-full border-2 border-white shadow"
-                  style={{ backgroundColor: combo.back }}
+                  style={{ backgroundColor: combo.mesh }}
                 />
                 <div
                   className="w-6 h-6 rounded-full border-2 border-white shadow"
