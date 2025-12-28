@@ -88,6 +88,13 @@ router.get('/', async (req, res) => {
           front: row.front_image_url,
           back: row.back_image_url
         },
+        // Marker colors used in the source images for color replacement
+        markerColors: {
+          front: row.front_marker_color,
+          mesh: row.mesh_marker_color,
+          brim: row.brim_marker_color,
+          rope: row.rope_marker_color
+        },
         canvas: row.canvas
       };
     }
@@ -149,6 +156,7 @@ router.post('/hat-types', authenticate, requireAdmin, async (req, res) => {
     const {
       slug, name, description, category,
       preview_image_url, front_image_url, back_image_url,
+      front_marker_color, mesh_marker_color, brim_marker_color, rope_marker_color,
       display_order, active, parts, canvas
     } = req.body;
 
@@ -158,10 +166,10 @@ router.post('/hat-types', authenticate, requireAdmin, async (req, res) => {
 
     // Create hat type
     const hatResult = await client.query(
-      `INSERT INTO hat_types (slug, name, description, category, preview_image_url, front_image_url, back_image_url, display_order, active)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `INSERT INTO hat_types (slug, name, description, category, preview_image_url, front_image_url, back_image_url, front_marker_color, mesh_marker_color, brim_marker_color, rope_marker_color, display_order, active)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        RETURNING *`,
-      [slug, name, description, category, preview_image_url, front_image_url, back_image_url, display_order || 0, active !== false]
+      [slug, name, description, category, preview_image_url, front_image_url, back_image_url, front_marker_color, mesh_marker_color, brim_marker_color, rope_marker_color, display_order || 0, active !== false]
     );
 
     const hatTypeId = hatResult.rows[0].id;
@@ -216,6 +224,7 @@ router.put('/hat-types/:id', authenticate, requireAdmin, async (req, res) => {
     const {
       slug, name, description, category,
       preview_image_url, front_image_url, back_image_url,
+      front_marker_color, mesh_marker_color, brim_marker_color, rope_marker_color,
       display_order, active, parts, canvas
     } = req.body;
 
@@ -229,12 +238,16 @@ router.put('/hat-types/:id', authenticate, requireAdmin, async (req, res) => {
         preview_image_url = $5,
         front_image_url = $6,
         back_image_url = $7,
-        display_order = COALESCE($8, display_order),
-        active = COALESCE($9, active),
+        front_marker_color = $8,
+        mesh_marker_color = $9,
+        brim_marker_color = $10,
+        rope_marker_color = $11,
+        display_order = COALESCE($12, display_order),
+        active = COALESCE($13, active),
         updated_at = CURRENT_TIMESTAMP
-       WHERE id = $10
+       WHERE id = $14
        RETURNING *`,
-      [slug, name, description, category, preview_image_url, front_image_url, back_image_url, display_order, active, id]
+      [slug, name, description, category, preview_image_url, front_image_url, back_image_url, front_marker_color, mesh_marker_color, brim_marker_color, rope_marker_color, display_order, active, id]
     );
 
     if (hatResult.rows.length === 0) {

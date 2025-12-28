@@ -5,6 +5,18 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 // ============================================
+// MARKER COLORS FOR HAT IMAGES
+// These are the colors used in the hat template images
+// The system replaces these with user-selected colors
+// ============================================
+export const MARKER_COLORS = {
+  front: "#FF0000",  // Pure red - front panel
+  mesh: "#00FF00",   // Pure green - mesh/back
+  brim: "#0000FF",   // Pure blue - brim/bill
+  rope: "#FFFF00",   // Pure yellow - rope (caddie hats)
+};
+
+// ============================================
 // FALLBACK COLOR PRESETS
 // Used when API is unavailable
 // ============================================

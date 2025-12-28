@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef, useCallback } from "react";
+import { MARKER_COLORS } from "@/config/hatConfig";
 
 // Default canvas config fallback
 const DEFAULT_CANVAS_CONFIG = {
@@ -10,6 +11,86 @@ const DEFAULT_CANVAS_CONFIG = {
   },
 };
 
+// Helper: Convert hex to RGB
+const hexToRgb = (hex) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16),
+  } : null;
+};
+
+// Helper: Calculate color distance
+const colorDistance = (r1, g1, b1, r2, g2, b2) => {
+  return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
+};
+
+// Helper: Replace marker colors in image data with user colors
+// Higher tolerance = more lenient color matching (captures shadows/variations)
+const replaceMarkerColors = (sourceImageData, userColors, markerColors, tolerance = 80) => {
+  const data = new Uint8ClampedArray(sourceImageData.data);
+
+  // Use provided marker colors, fall back to defaults if not set
+  const effectiveMarkers = {
+    front: markerColors?.front || MARKER_COLORS.front,
+    mesh: markerColors?.mesh || MARKER_COLORS.mesh,
+    brim: markerColors?.brim || MARKER_COLORS.brim,
+    rope: markerColors?.rope || MARKER_COLORS.rope,
+  };
+
+  // Convert marker hex colors to RGB
+  const markerRgb = {};
+  for (const [part, hex] of Object.entries(effectiveMarkers)) {
+    if (hex) {
+      markerRgb[part] = hexToRgb(hex);
+    }
+  }
+
+  // Convert user colors to RGB
+  const userRgb = {};
+  for (const [part, hex] of Object.entries(userColors)) {
+    if (hex) {
+      userRgb[part] = hexToRgb(hex);
+    }
+  }
+
+  // Process each pixel
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    const a = data[i + 3];
+
+    // Skip transparent pixels
+    if (a < 10) continue;
+
+    // Check each marker color
+    for (const [part, marker] of Object.entries(markerRgb)) {
+      if (!marker) continue;
+      const userColor = userRgb[part];
+      if (!userColor) continue;
+
+      const distance = colorDistance(r, g, b, marker.r, marker.g, marker.b);
+
+      if (distance < tolerance) {
+        // Calculate luminance factor to preserve shading
+        const markerMax = Math.max(marker.r, marker.g, marker.b);
+        const pixelMax = Math.max(r, g, b);
+        const luminance = markerMax > 0 ? pixelMax / markerMax : 1;
+
+        // Apply user color with luminance preservation
+        data[i] = Math.min(255, Math.round(userColor.r * luminance));
+        data[i + 1] = Math.min(255, Math.round(userColor.g * luminance));
+        data[i + 2] = Math.min(255, Math.round(userColor.b * luminance));
+        break;
+      }
+    }
+  }
+
+  return new ImageData(data, sourceImageData.width, sourceImageData.height);
+};
+
 const DesignCanvas = forwardRef(function DesignCanvas(
   { design, hatTypes, selectedElementId, onSelectElement, onUpdateElement, onViewChange },
   ref
@@ -19,7 +100,7 @@ const DesignCanvas = forwardRef(function DesignCanvas(
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [loadedImages, setLoadedImages] = useState({}); // { elementId: { img, url } }
-  const [hatImages, setHatImages] = useState({}); // { "classic-front": img, "classic-back": img, ... }
+  const [hatImageData, setHatImageData] = useState({}); // { "classic-front": { imageData, width, height, url } }
 
   // Get hat type config from passed hatTypes prop
   const firstHatType = Object.values(hatTypes || {})[0];
@@ -53,7 +134,7 @@ const DesignCanvas = forwardRef(function DesignCanvas(
   const frontImageUrl = currentHatConfig?.images?.front;
   const backImageUrl = currentHatConfig?.images?.back;
 
-  // Load hat images for current hat type
+  // Load hat images and extract pixel data for color replacement
   useEffect(() => {
     if (!design.hatStyle || !hatTypes) return;
 
@@ -66,18 +147,32 @@ const DesignCanvas = forwardRef(function DesignCanvas(
       const imagePath = hatConfig.images[view];
 
       // Check if we need to load/reload (new URL or not loaded yet)
-      const currentImage = hatImages[imageKey];
-      if (imagePath && (!currentImage || currentImage.src !== imagePath)) {
+      const currentData = hatImageData[imageKey];
+      if (imagePath && (!currentData || currentData.url !== imagePath)) {
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.onload = () => {
-          setHatImages((prev) => ({
+          // Create a temporary canvas to extract image data
+          const tempCanvas = document.createElement("canvas");
+          tempCanvas.width = img.width;
+          tempCanvas.height = img.height;
+          const tempCtx = tempCanvas.getContext("2d");
+          tempCtx.drawImage(img, 0, 0);
+
+          // Extract the image data for pixel manipulation
+          const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
+
+          setHatImageData((prev) => ({
             ...prev,
-            [imageKey]: img
+            [imageKey]: {
+              imageData,
+              width: img.width,
+              height: img.height,
+              url: imagePath
+            }
           }));
         };
         img.onerror = () => {
-          // Image not found - will fall back to colored shapes only
           console.warn(`Hat image not found: ${imagePath}`);
         };
         img.src = imagePath;
@@ -104,12 +199,36 @@ const DesignCanvas = forwardRef(function DesignCanvas(
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Get hat image for current view (if available)
+    // Get hat image data for current view
     const hatImageKey = `${design.hatStyle}-${design.currentView}`;
-    const hatImage = hatImages[hatImageKey];
+    const hatData = hatImageData[hatImageKey];
 
-    // Draw hat with colors (and overlay image if available)
-    drawHatMockup(ctx, design.colors, design.currentView, canvasConfig, design.hatStyle, hatImage);
+    if (hatData?.imageData) {
+      // Get marker colors for this hat type (from config)
+      const hatConfig = hatTypes?.[design.hatStyle];
+      const markerColors = hatConfig?.markerColors;
+
+      // Apply color replacement to the hat image
+      const processedImageData = replaceMarkerColors(hatData.imageData, design.colors, markerColors);
+
+      // Create a temporary canvas to hold the processed image
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = hatData.width;
+      tempCanvas.height = hatData.height;
+      const tempCtx = tempCanvas.getContext("2d");
+      tempCtx.putImageData(processedImageData, 0, 0);
+
+      // Draw the processed hat image scaled to fit the canvas
+      ctx.drawImage(tempCanvas, 0, 0, canvasConfig.width, canvasConfig.height);
+    } else {
+      // Fallback: draw a placeholder if no image loaded
+      ctx.fillStyle = "#e5e7eb";
+      ctx.fillRect(0, 0, canvasConfig.width, canvasConfig.height);
+      ctx.fillStyle = "#9ca3af";
+      ctx.font = "14px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Loading hat image...", canvasConfig.width / 2, canvasConfig.height / 2);
+    }
 
     // Draw design area boundary (subtle guide)
     ctx.strokeStyle = "rgba(0,0,0,0.1)";
@@ -131,96 +250,11 @@ const DesignCanvas = forwardRef(function DesignCanvas(
         drawImageElement(ctx, element, loadedImages[element.id].img, isSelected);
       }
     });
-  }, [design, selectedElementId, loadedImages, canvasConfig, designArea, hatImages]);
+  }, [design, selectedElementId, loadedImages, canvasConfig, designArea, hatImageData]);
 
   useEffect(() => {
     drawCanvas();
   }, [drawCanvas]);
-
-  const drawHatMockup = (ctx, colors, view, cfg, hatStyle, hatImage) => {
-    // Draw colored shapes as background, then overlay hat image
-    const centerX = cfg.width / 2;
-
-    if (view === "front") {
-      // Draw brim/bill
-      ctx.fillStyle = colors.brim;
-      ctx.beginPath();
-      ctx.ellipse(centerX, 240, 150, 30, 0, 0, Math.PI);
-      ctx.fill();
-
-      // Draw front panel
-      ctx.fillStyle = colors.front;
-      ctx.beginPath();
-      ctx.moveTo(50, 240);
-      ctx.quadraticCurveTo(centerX, 20, 350, 240);
-      ctx.lineTo(50, 240);
-      ctx.fill();
-
-      // Draw mesh (sides visible from front)
-      ctx.fillStyle = colors.mesh;
-      ctx.beginPath();
-      ctx.moveTo(50, 240);
-      ctx.quadraticCurveTo(20, 150, 60, 80);
-      ctx.lineTo(80, 100);
-      ctx.quadraticCurveTo(40, 160, 50, 240);
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(350, 240);
-      ctx.quadraticCurveTo(380, 150, 340, 80);
-      ctx.lineTo(320, 100);
-      ctx.quadraticCurveTo(360, 160, 350, 240);
-      ctx.fill();
-
-      // Draw rope for caddie hats
-      if (hatStyle === "caddie" && colors.rope) {
-        ctx.fillStyle = colors.rope;
-        ctx.beginPath();
-        // Rope runs along the base of the front panel
-        ctx.moveTo(70, 235);
-        ctx.quadraticCurveTo(centerX, 215, 330, 235);
-        ctx.lineTo(330, 240);
-        ctx.quadraticCurveTo(centerX, 220, 70, 240);
-        ctx.fill();
-      }
-
-      // Add subtle outline
-      ctx.strokeStyle = "rgba(0,0,0,0.2)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(50, 240);
-      ctx.quadraticCurveTo(centerX, 20, 350, 240);
-      ctx.stroke();
-
-    } else {
-      // Back view
-      ctx.fillStyle = colors.mesh;
-      ctx.beginPath();
-      ctx.moveTo(50, 240);
-      ctx.quadraticCurveTo(centerX, 40, 350, 240);
-      ctx.lineTo(50, 240);
-      ctx.fill();
-
-      // Draw brim edge
-      ctx.fillStyle = colors.brim;
-      ctx.beginPath();
-      ctx.ellipse(centerX, 240, 150, 20, 0, 0, Math.PI);
-      ctx.fill();
-
-      // Snapback closure indicator
-      ctx.fillStyle = "rgba(0,0,0,0.3)";
-      ctx.beginPath();
-      ctx.arc(centerX, 200, 20, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // If hat image is loaded, overlay it with multiply blend mode
-    if (hatImage) {
-      ctx.globalCompositeOperation = 'multiply';
-      ctx.drawImage(hatImage, 0, 0, cfg.width, cfg.height);
-      ctx.globalCompositeOperation = 'source-over';
-    }
-  };
 
   const drawTextElement = (ctx, element, isSelected) => {
     ctx.font = `${element.size || 32}px ${element.font || "Arial"}`;

@@ -206,11 +206,17 @@ function HatTypeModal({ hatType, onClose, onSave, isLoading }) {
     preview_image_url: hatType?.preview_image_url || "",
     front_image_url: hatType?.front_image_url || "",
     back_image_url: hatType?.back_image_url || "",
+    front_marker_color: hatType?.front_marker_color || "",
+    mesh_marker_color: hatType?.mesh_marker_color || "",
+    brim_marker_color: hatType?.brim_marker_color || "",
+    rope_marker_color: hatType?.rope_marker_color || "",
     active: hatType?.active !== false,
     parts: hatType?.parts || [],
   });
 
   const [uploading, setUploading] = useState(null);
+  const [samplingFor, setSamplingFor] = useState(null); // Which part we're sampling color for
+  const colorSampleCanvasRef = React.useRef(null);
 
   const uploadImage = async (file, field) => {
     setUploading(field);
@@ -258,10 +264,54 @@ function HatTypeModal({ hatType, onClose, onSave, isLoading }) {
     setFormData((prev) => ({ ...prev, slug }));
   };
 
+  // Handle clicking on image to sample color
+  const handleImageClick = (e) => {
+    if (!samplingFor || !colorSampleCanvasRef.current) return;
+
+    const canvas = colorSampleCanvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+    const ctx = canvas.getContext("2d");
+    const pixel = ctx.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
+
+    const hex = "#" + [pixel[0], pixel[1], pixel[2]]
+      .map((c) => c.toString(16).padStart(2, "0"))
+      .join("");
+
+    const fieldName = `${samplingFor}_marker_color`;
+    setFormData((prev) => ({ ...prev, [fieldName]: hex }));
+    setSamplingFor(null);
+  };
+
+  // Load image to canvas for color sampling
+  React.useEffect(() => {
+    if (formData.front_image_url && colorSampleCanvasRef.current) {
+      const canvas = colorSampleCanvasRef.current;
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+      };
+      img.src = formData.front_image_url;
+    }
+  }, [formData.front_image_url]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave(formData);
   };
+
+  const markerParts = [
+    { id: "front", label: "Front Panel", color: formData.front_marker_color },
+    { id: "mesh", label: "Mesh/Back", color: formData.mesh_marker_color },
+    { id: "brim", label: "Brim/Bill", color: formData.brim_marker_color },
+    { id: "rope", label: "Rope", color: formData.rope_marker_color },
+  ];
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
@@ -389,6 +439,74 @@ function HatTypeModal({ hatType, onClose, onSave, isLoading }) {
               />
             </div>
           </div>
+
+          {/* Color Sampling Section */}
+          {formData.front_image_url && (
+            <div>
+              <Label className="mb-2 block">
+                <Palette className="w-4 h-4 inline mr-1" />
+                Sample Marker Colors from Image
+              </Label>
+              <p className="text-xs text-gray-500 mb-3">
+                Click a part button below, then click on the image where that color appears.
+                These colors identify which parts of your image can be recolored.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                {/* Color buttons */}
+                <div className="space-y-2">
+                  {markerParts.map((part) => (
+                    <button
+                      key={part.id}
+                      type="button"
+                      onClick={() => setSamplingFor(samplingFor === part.id ? null : part.id)}
+                      className={`w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
+                        samplingFor === part.id
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <span className="font-medium text-sm">{part.label}</span>
+                      <div className="flex items-center gap-2">
+                        {part.color ? (
+                          <>
+                            <div
+                              className="w-6 h-6 rounded border border-gray-300"
+                              style={{ backgroundColor: part.color }}
+                            />
+                            <span className="text-xs text-gray-500 font-mono">
+                              {part.color}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-xs text-gray-400">Click to sample</span>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Image canvas for sampling */}
+                <div className="relative">
+                  <canvas
+                    ref={colorSampleCanvasRef}
+                    onClick={handleImageClick}
+                    className={`w-full h-auto rounded-lg border-2 ${
+                      samplingFor
+                        ? "cursor-crosshair border-blue-500"
+                        : "cursor-default border-gray-200"
+                    }`}
+                    style={{ maxHeight: "250px", objectFit: "contain" }}
+                  />
+                  {samplingFor && (
+                    <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                      Click to sample {markerParts.find(p => p.id === samplingFor)?.label}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Colorizable Parts */}
           <div>

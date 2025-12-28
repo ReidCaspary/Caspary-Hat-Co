@@ -71,6 +71,12 @@ CREATE TABLE IF NOT EXISTS hat_types (
     preview_image_url TEXT,
     front_image_url TEXT,
     back_image_url TEXT,
+    -- Marker colors: the colors used in the source image for each part
+    -- These are sampled from the uploaded image and used for color replacement
+    front_marker_color VARCHAR(7),
+    mesh_marker_color VARCHAR(7),
+    brim_marker_color VARCHAR(7),
+    rope_marker_color VARCHAR(7),
     display_order INTEGER DEFAULT 0,
     active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -124,6 +130,23 @@ CREATE TABLE IF NOT EXISTS color_combinations (
     display_order INTEGER DEFAULT 0,
     active BOOLEAN DEFAULT true
 );
+
+-- Add marker color columns to hat_types if they don't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'hat_types' AND column_name = 'front_marker_color') THEN
+        ALTER TABLE hat_types ADD COLUMN front_marker_color VARCHAR(7);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'hat_types' AND column_name = 'mesh_marker_color') THEN
+        ALTER TABLE hat_types ADD COLUMN mesh_marker_color VARCHAR(7);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'hat_types' AND column_name = 'brim_marker_color') THEN
+        ALTER TABLE hat_types ADD COLUMN brim_marker_color VARCHAR(7);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'hat_types' AND column_name = 'rope_marker_color') THEN
+        ALTER TABLE hat_types ADD COLUMN rope_marker_color VARCHAR(7);
+    END IF;
+END $$;
 
 -- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_blog_posts_published ON blog_posts(published);
