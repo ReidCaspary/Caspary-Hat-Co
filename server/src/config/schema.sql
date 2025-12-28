@@ -148,6 +148,27 @@ BEGIN
     END IF;
 END $$;
 
+-- Gallery items table
+CREATE TABLE IF NOT EXISTS gallery_items (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    description TEXT,
+    display_order INTEGER DEFAULT 0,
+    active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Gallery item images (multiple images per gallery item)
+CREATE TABLE IF NOT EXISTS gallery_item_images (
+    id SERIAL PRIMARY KEY,
+    gallery_item_id INTEGER REFERENCES gallery_items(id) ON DELETE CASCADE,
+    image_url TEXT NOT NULL,
+    display_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_blog_posts_published ON blog_posts(published);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_category ON blog_posts(category);
@@ -159,3 +180,8 @@ CREATE INDEX IF NOT EXISTS idx_hat_types_active ON hat_types(active);
 CREATE INDEX IF NOT EXISTS idx_hat_types_slug ON hat_types(slug);
 CREATE INDEX IF NOT EXISTS idx_hat_parts_hat_type ON hat_parts(hat_type_id);
 CREATE INDEX IF NOT EXISTS idx_color_presets_active ON color_presets(active);
+CREATE INDEX IF NOT EXISTS idx_gallery_items_active ON gallery_items(active);
+CREATE INDEX IF NOT EXISTS idx_gallery_items_category ON gallery_items(category);
+CREATE INDEX IF NOT EXISTS idx_gallery_items_order ON gallery_items(display_order);
+CREATE INDEX IF NOT EXISTS idx_gallery_item_images_item ON gallery_item_images(gallery_item_id);
+CREATE INDEX IF NOT EXISTS idx_gallery_item_images_order ON gallery_item_images(display_order);

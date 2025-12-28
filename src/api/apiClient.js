@@ -380,6 +380,74 @@ export const UploadFile = async (file) => {
   return { file_url: result.url };
 };
 
+// Gallery Item API
+export const GalleryItem = {
+  async findMany(options = {}) {
+    const params = new URLSearchParams();
+    if (options.category) params.append('category', options.category);
+
+    const endpoint = options.includeInactive ? '/api/gallery/all' : '/api/gallery';
+    const result = await apiFetch(`${endpoint}?${params.toString()}`);
+    return result.items || [];
+  },
+
+  async findById(id) {
+    return apiFetch(`/api/gallery/${id}`);
+  },
+
+  async getCategories() {
+    const result = await apiFetch('/api/gallery/categories');
+    return result.categories || [];
+  },
+
+  async create(data) {
+    return apiFetch('/api/gallery', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async update(id, data) {
+    return apiFetch(`/api/gallery/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async delete(id) {
+    return apiFetch(`/api/gallery/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async reorder(order) {
+    return apiFetch('/api/gallery/reorder', {
+      method: 'PUT',
+      body: JSON.stringify({ order }),
+    });
+  },
+
+  async addImages(id, images) {
+    return apiFetch(`/api/gallery/${id}/images`, {
+      method: 'POST',
+      body: JSON.stringify({ images }),
+    });
+  },
+
+  async removeImage(itemId, imageId) {
+    return apiFetch(`/api/gallery/${itemId}/images/${imageId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async reorderImages(itemId, order) {
+    return apiFetch(`/api/gallery/${itemId}/images/reorder`, {
+      method: 'PUT',
+      body: JSON.stringify({ order }),
+    });
+  }
+};
+
 export default {
   User,
   ContactInquiry,
@@ -389,4 +457,5 @@ export default {
   DesignerAPI,
   HatConfig,
   UploadFile,
+  GalleryItem,
 };

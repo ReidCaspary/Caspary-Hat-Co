@@ -1,47 +1,28 @@
 
 import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { X, ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-
-const galleryItems = [
-  {
-    title: "Custom Event Hats",
-    category: "Event",
-    description: "Elegant Custom Memorabilia for Events",
-    images: [
-      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517515/WhatsApp_Image_2025-10-27_at_16.36.19_acadc270_ik9j3h.jpg",
-      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517516/WhatsApp_Image_2025-11-03_at_15.52.15_6119fab8_mtukfz.jpg",
-      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517514/Dancers_zlksmi.jpg"
-    ]
-
-  },
-  {
-    title: "Custom Corporate Hats",
-    category: "Business",
-    description: "Premium Custom Hats for Corporate Branding",
-    images: [
-      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517515/WhatsApp_Image_2025-10-27_at_16.36.18_17db9e80_ltlg0x.jpg",
-      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517513/100_Cotton_gmcwn1.jpg"
-    ]
-
-  },
-  {
-    title: "Team Hats",
-    category: "Team Hats",
-    description: "Custom Team Hats with Embroidered Mascot and Colors",
-    images: [
-      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517514/The_thunder_Baseball_jgryfz.jpg",
-      "https://res.cloudinary.com/dk8a8a7cc/image/upload/v1766517514/The_Mud_Dogs_zcblz4.jpg"
-    ]
-
-  }];
+import { GalleryItem } from "@/api/apiClient";
 
 
 export default function Gallery() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [filter, setFilter] = useState("All");
+
+  // Fetch gallery items from database
+  const { data: rawItems = [], isLoading } = useQuery({
+    queryKey: ['gallery-items'],
+    queryFn: () => GalleryItem.findMany(),
+  });
+
+  // Transform items to match the expected format (images as array of URLs)
+  const galleryItems = rawItems.map(item => ({
+    ...item,
+    images: item.images?.map(img => img.image_url) || []
+  }));
 
   const categories = ["All", ...new Set(galleryItems.map((item) => item.category))];
 
@@ -74,6 +55,14 @@ export default function Gallery() {
     setSelectedItem(null);
     setCurrentImageIndex(0);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div>
