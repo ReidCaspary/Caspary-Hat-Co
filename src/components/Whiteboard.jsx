@@ -1,17 +1,40 @@
 import React, { useRef, useState, useEffect, useImperativeHandle } from "react";
 import { Button } from "@/components/ui/button";
-import { 
-  Pencil, Type, Image as ImageIcon, ArrowRight, 
+import {
+  Pencil, Type, Image as ImageIcon, ArrowRight,
   Minus, Undo, Trash2, Download, MousePointer, Maximize, Minimize
 } from "lucide-react";
 import { UploadFile } from "@/api/apiClient";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const FONT_OPTIONS = [
+  { value: "Arial", label: "Arial" },
+  { value: "Times New Roman", label: "Times New Roman" },
+  { value: "Georgia", label: "Georgia" },
+  { value: "Verdana", label: "Verdana" },
+  { value: "Courier New", label: "Courier New" },
+  { value: "Impact", label: "Impact" },
+  { value: "Comic Sans MS", label: "Comic Sans" },
+  { value: "Trebuchet MS", label: "Trebuchet" },
+  { value: "Arial Black", label: "Arial Black" },
+  { value: "Palatino Linotype", label: "Palatino" },
+];
 
 const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
+  const textInputRef = useRef(null);
+  const editingTextRef = useRef(null);
   const [tool, setTool] = useState("select");
   const [color, setColor] = useState("#000000");
   const [lineWidth, setLineWidth] = useState(2);
+  const [fontFamily, setFontFamily] = useState("Arial");
   const [elements, setElements] = useState([]);
   const [history, setHistory] = useState([[]]);
   const [historyStep, setHistoryStep] = useState(0);
@@ -21,8 +44,10 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
   const [currentElement, setCurrentElement] = useState(null);
   const [cursor, setCursor] = useState("default");
   const [isDragOver, setIsDragOver] = useState(false);
-  const [hasImage, setHasImage] = useState(false);
+  const [hasContent, setHasContent] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // Text editing state
+  const [editingText, setEditingText] = useState(null); // { id, x, y, text, fontSize, fontFamily, color }
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -38,7 +63,7 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
 
   useEffect(() => {
     redrawCanvas();
-  }, [elements, selectedElement]);
+  }, [elements, selectedElement, editingText]);
 
   useEffect(() => {
     if (tool === "select") {
@@ -48,10 +73,10 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
     }
   }, [tool]);
 
-  // Check if there are any images
+  // Check if there are any images or text (to hide placeholder)
   useEffect(() => {
-    const hasImageElement = elements.some(el => el.type === "image");
-    setHasImage(hasImageElement);
+    const hasElements = elements.some(el => el.type === "image" || el.type === "text");
+    setHasContent(hasElements);
   }, [elements]);
 
   const redrawCanvas = () => {
@@ -67,6 +92,8 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
     ctx.save();
 
     elements.forEach(element => {
+      // Skip rendering the text element being edited
+      if (editingText && element.id === editingText.id) return;
       drawElement(ctx, element);
     });
 
@@ -130,7 +157,7 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
         break;
 
       case "text":
-        ctx.font = `${element.fontSize || 20}px Arial`;
+        ctx.font = `${element.fontSize || 20}px ${element.fontFamily || "Arial"}`;
         ctx.fillText(element.text, element.x, element.y);
         break;
 
@@ -299,6 +326,11 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
     e.preventDefault();
     const pos = getMousePos(e);
 
+    // Commit any existing text edit when clicking elsewhere
+    if (editingText && tool !== "text") {
+      commitTextEdit();
+    }
+
     if (tool === "select") {
       // Check if clicking on resize handle first
       if (selectedElement) {
@@ -362,12 +394,18 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
       newElement.x2 = pos.x;
       newElement.y2 = pos.y;
     } else if (tool === "text") {
-      const text = prompt("Enter text:");
-      if (text) {
-        newElement.text = text;
-        newElement.fontSize = lineWidth * 10;
-        addElement(newElement);
-      }
+      // Start inline text editing
+      const fontSize = Math.max(16, lineWidth * 10);
+      setEditingText({
+        id: newElement.id,
+        x: pos.x,
+        y: pos.y,
+        text: "",
+        fontSize: fontSize,
+        fontFamily: fontFamily,
+        color: color,
+        isNew: true
+      });
       return;
     }
 
@@ -556,6 +594,7 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
     setHistory([[]]);
     setHistoryStep(0);
     setSelectedElement(null);
+    setEditingText(null);
   };
 
   const deleteSelected = () => {
@@ -567,6 +606,136 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
       newHistory.push(newElements);
       setHistory(newHistory);
       setHistoryStep(newHistory.length - 1);
+    }
+  };
+
+  // Text editing functions
+  const commitTextEdit = () => {
+    const currentEdit = editingTextRef.current;
+    if (!currentEdit) return;
+
+    if (currentEdit.text.trim()) {
+      if (currentEdit.isNew) {
+        // Add new text element
+        const newElement = {
+          id: currentEdit.id,
+          type: "text",
+          x: currentEdit.x,
+          y: currentEdit.y,
+          text: currentEdit.text,
+          fontSize: currentEdit.fontSize,
+          fontFamily: currentEdit.fontFamily,
+          color: currentEdit.color
+        };
+        addElement(newElement);
+      } else {
+        // Update existing text element with all properties
+        setElements(prevElements => {
+          const updatedElements = prevElements.map(el =>
+            el.id === currentEdit.id
+              ? {
+                  ...el,
+                  text: currentEdit.text,
+                  fontFamily: currentEdit.fontFamily,
+                  fontSize: currentEdit.fontSize,
+                  color: currentEdit.color
+                }
+              : el
+          );
+          const newHistory = history.slice(0, historyStep + 1);
+          newHistory.push(updatedElements);
+          setHistory(newHistory);
+          setHistoryStep(newHistory.length - 1);
+          return updatedElements;
+        });
+      }
+    } else if (!currentEdit.isNew) {
+      // If text is empty and it's an existing element, delete it
+      setElements(prevElements => {
+        const updatedElements = prevElements.filter(el => el.id !== currentEdit.id);
+        const newHistory = history.slice(0, historyStep + 1);
+        newHistory.push(updatedElements);
+        setHistory(newHistory);
+        setHistoryStep(newHistory.length - 1);
+        return updatedElements;
+      });
+    }
+    setEditingText(null);
+  };
+
+  const cancelTextEdit = () => {
+    setEditingText(null);
+  };
+
+  const handleTextInputKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      commitTextEdit();
+    } else if (e.key === "Escape") {
+      cancelTextEdit();
+    }
+  };
+
+  const startEditingExistingText = (element) => {
+    setEditingText({
+      id: element.id,
+      x: element.x,
+      y: element.y,
+      text: element.text,
+      fontSize: element.fontSize || 20,
+      fontFamily: element.fontFamily || "Arial",
+      color: element.color || "#000000",
+      isNew: false
+    });
+  };
+
+  // Keep ref in sync with state and focus text input when editing starts
+  useEffect(() => {
+    editingTextRef.current = editingText;
+    if (editingText && textInputRef.current) {
+      textInputRef.current.focus();
+    }
+  }, [editingText]);
+
+  // Handle click outside to close text editor
+  useEffect(() => {
+    if (!editingText) return;
+
+    const handleClickOutside = (e) => {
+      const editorContainer = document.querySelector('[data-text-editor]');
+      // Check if click is inside the editor container
+      if (editorContainer && editorContainer.contains(e.target)) {
+        return;
+      }
+      // Check if click is inside a Radix UI portal (Select dropdown)
+      if (e.target.closest('[data-radix-popper-content-wrapper]') ||
+          e.target.closest('[role="listbox"]') ||
+          e.target.closest('[data-radix-select-viewport]')) {
+        return;
+      }
+      commitTextEdit();
+    };
+
+    // Delay adding the listener to prevent immediate triggering
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 10);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [editingText]);
+
+  // Handle double-click to edit text
+  const handleDoubleClick = (e) => {
+    const pos = getMousePos(e);
+    const elementId = findElementAtPosition(pos.x, pos.y);
+    if (elementId) {
+      const element = elements.find(el => el.id === elementId);
+      if (element && element.type === "text") {
+        startEditingExistingText(element);
+      }
     }
   };
 
@@ -741,6 +910,9 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Don't handle shortcuts while editing text
+      if (editingText) return;
+
       if (e.key === "Delete" || e.key === "Backspace") {
         if (selectedElement) {
           e.preventDefault();
@@ -755,7 +927,7 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedElement, historyStep, elements]);
+  }, [selectedElement, historyStep, elements, editingText]);
 
   return (
     <div ref={containerRef} className={`space-y-3 ${isFullscreen ? 'bg-gray-100 p-8 flex flex-col items-center justify-center h-screen' : ''}`}>
@@ -920,13 +1092,88 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
+          onDoubleClick={handleDoubleClick}
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
           className="w-full touch-none"
           style={{ cursor }}
         />
-        {!hasImage && (
+        {/* Inline text editing overlay */}
+        {editingText && (
+          <div
+            className="absolute z-10"
+            data-text-editor="true"
+            onMouseDown={(e) => e.stopPropagation()}
+            style={{
+              left: `${(editingText.x / (canvasRef.current?.width || 700)) * 100}%`,
+              top: `${((editingText.y - editingText.fontSize) / (canvasRef.current?.height || 420)) * 100}%`,
+            }}
+          >
+            {/* Floating toolbar */}
+            <div
+              className="flex items-center gap-2 mb-1 bg-white rounded-lg shadow-lg border p-1.5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Select
+                value={editingText.fontFamily}
+                onValueChange={(val) => setEditingText({ ...editingText, fontFamily: val })}
+              >
+                <SelectTrigger className="w-28 h-7 text-xs border-gray-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FONT_OPTIONS.map((font) => (
+                    <SelectItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>
+                      {font.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input
+                type="number"
+                min="12"
+                max="72"
+                value={editingText.fontSize}
+                onChange={(e) => setEditingText({ ...editingText, fontSize: Math.max(12, Math.min(72, parseInt(e.target.value) || 16)) })}
+                className="w-14 h-7 text-xs border rounded px-2 text-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.target.focus();
+                  e.target.select();
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+              />
+              <input
+                type="color"
+                value={editingText.color}
+                onChange={(e) => setEditingText({ ...editingText, color: e.target.value })}
+                className="w-7 h-7 rounded cursor-pointer border-0 p-0"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+            {/* Text input */}
+            <input
+              ref={textInputRef}
+              type="text"
+              value={editingText.text}
+              onChange={(e) => setEditingText({ ...editingText, text: e.target.value })}
+              onKeyDown={handleTextInputKeyDown}
+              onClick={(e) => e.stopPropagation()}
+              placeholder="Type text..."
+              className="bg-white/90 border-2 border-blue-500 rounded outline-none shadow-lg"
+              style={{
+                fontSize: `${editingText.fontSize * 0.65}px`,
+                fontFamily: editingText.fontFamily,
+                color: editingText.color,
+                minWidth: "150px",
+                padding: "6px 10px",
+                lineHeight: 1.3,
+              }}
+            />
+          </div>
+        )}
+        {!hasContent && !editingText && (
           <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${isDragOver ? 'opacity-100' : 'opacity-40'}`}>
             <div className="text-center">
               <ImageIcon className="w-12 h-12 mx-auto mb-2 text-[var(--gray-medium)]" />
