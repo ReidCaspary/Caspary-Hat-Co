@@ -18,7 +18,8 @@ import {
   GripVertical,
   Check,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  Settings
 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 
@@ -1076,6 +1077,70 @@ function ColorPickerField({ label, value, onChange }) {
   );
 }
 
+// Settings Tab Content
+function SettingsTab() {
+  const queryClient = useQueryClient();
+
+  const { data: settings, isLoading } = useQuery({
+    queryKey: ["hat-designer-settings"],
+    queryFn: () => HatConfig.getSettings(),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (data) => HatConfig.updateSettings(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["hat-designer-settings"] });
+    },
+  });
+
+  if (isLoading) {
+    return <div className="py-8 text-center text-gray-500">Loading settings...</div>;
+  }
+
+  const isEnabled = settings?.enabled !== false;
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg border p-6">
+        <h3 className="font-semibold text-lg mb-4">Hat Designer Visibility</h3>
+        <p className="text-gray-600 mb-6">
+          Control whether the hat designer tool is visible to visitors on the website.
+          When disabled, the designer link will be hidden from the navigation and the designer page will show a message.
+        </p>
+
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => updateMutation.mutate({ enabled: !isEnabled })}
+            disabled={updateMutation.isPending}
+            className="flex items-center gap-3 p-4 rounded-lg border-2 transition-all hover:bg-gray-50"
+          >
+            {isEnabled ? (
+              <ToggleRight className="w-10 h-10 text-green-600" />
+            ) : (
+              <ToggleLeft className="w-10 h-10 text-gray-400" />
+            )}
+            <div className="text-left">
+              <p className="font-medium">
+                Hat Designer is {isEnabled ? "Enabled" : "Disabled"}
+              </p>
+              <p className="text-sm text-gray-500">
+                {isEnabled
+                  ? "Visitors can access the hat designer tool"
+                  : "Hat designer is hidden from visitors"}
+              </p>
+            </div>
+          </button>
+        </div>
+
+        {updateMutation.isPending && (
+          <p className="text-sm text-gray-500 mt-4">Saving...</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Main Component
 export default function HatConfigPage() {
   const [activeTab, setActiveTab] = useState("hat-types");
@@ -1084,6 +1149,7 @@ export default function HatConfigPage() {
     { id: "hat-types", label: "Hat Types", icon: <HardHat className="w-4 h-4" /> },
     { id: "colors", label: "Color Presets", icon: <Palette className="w-4 h-4" /> },
     { id: "combinations", label: "Combinations", icon: <Layers className="w-4 h-4" /> },
+    { id: "settings", label: "Settings", icon: <Settings className="w-4 h-4" /> },
   ];
 
   return (
@@ -1104,6 +1170,7 @@ export default function HatConfigPage() {
         {activeTab === "hat-types" && <HatTypesTab />}
         {activeTab === "colors" && <ColorPresetsTab />}
         {activeTab === "combinations" && <ColorCombinationsTab />}
+        {activeTab === "settings" && <SettingsTab />}
       </div>
     </div>
   );

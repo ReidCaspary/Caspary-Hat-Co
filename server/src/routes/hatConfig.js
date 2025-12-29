@@ -5,6 +5,29 @@ import { authenticate, requireAdmin } from '../middleware/auth.js';
 const router = Router();
 
 // ============================================
+// PUBLIC ENDPOINT - Get hat designer settings
+// ============================================
+
+// GET /api/hat-config/settings - Get hat designer settings (public)
+router.get('/settings', async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT config_value FROM pricing_config WHERE config_key = 'hat_designer_settings'"
+    );
+
+    if (result.rows.length === 0) {
+      // Return default if not found
+      return res.json({ enabled: true });
+    }
+
+    res.json(result.rows[0].config_value);
+  } catch (error) {
+    console.error('Get hat designer settings error:', error);
+    res.status(500).json({ error: 'Failed to fetch hat designer settings' });
+  }
+});
+
+// ============================================
 // PUBLIC ENDPOINT - Get full config for designer
 // ============================================
 
@@ -534,6 +557,32 @@ router.delete('/combinations/:id', authenticate, requireAdmin, async (req, res) 
   } catch (error) {
     console.error('Delete color combination error:', error);
     res.status(500).json({ error: 'Failed to delete color combination' });
+  }
+});
+
+// ============================================
+// ADMIN ENDPOINT - Hat Designer Settings
+// ============================================
+
+// PUT /api/hat-config/settings - Update hat designer settings
+router.put('/settings', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const { enabled } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO pricing_config (config_key, config_value, updated_at)
+       VALUES ('hat_designer_settings', $1::jsonb, CURRENT_TIMESTAMP)
+       ON CONFLICT (config_key) DO UPDATE SET
+         config_value = $1::jsonb,
+         updated_at = CURRENT_TIMESTAMP
+       RETURNING config_value`,
+      [JSON.stringify({ enabled: enabled !== false })]
+    );
+
+    res.json(result.rows[0].config_value);
+  } catch (error) {
+    console.error('Update hat designer settings error:', error);
+    res.status(500).json({ error: 'Failed to update hat designer settings' });
   }
 });
 

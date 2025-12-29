@@ -212,5 +212,8 @@ INSERT INTO pricing_config (config_key, config_value) VALUES
     },
     "min_order_quantity": 50,
     "max_ui_quantity": 1000
+}'::jsonb),
+('hat_designer_settings', '{
+    "enabled": true
 }'::jsonb)
 ON CONFLICT (config_key) DO NOTHING;

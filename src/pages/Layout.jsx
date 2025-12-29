@@ -2,16 +2,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { User } from "@/api/apiClient";
+import { User, HatConfig } from "@/api/apiClient";
 import { Menu, X, Phone, Mail, MapPin, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NewsletterPopup from "../components/NewsletterPopup";
 
-const navigationItems = [
+const baseNavigationItems = [
 { name: "Home", url: createPageUrl("Home") },
 /*{ name: "About", url: createPageUrl("About") },*/
 { name: "Gallery", url: createPageUrl("Gallery") },
-{ name: "Design", url: "/designer" },
 { name: "FAQ", url: createPageUrl("FAQ") },
 { name: "Blog", url: createPageUrl("Blog") },
 { name: "Contact", url: createPageUrl("Contact") }];
@@ -21,6 +20,7 @@ export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState(null);
+  const [designerEnabled, setDesignerEnabled] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
@@ -48,6 +48,28 @@ export default function Layout({ children, currentPageName }) {
     };
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    const fetchDesignerSettings = async () => {
+      try {
+        const settings = await HatConfig.getSettings();
+        setDesignerEnabled(settings?.enabled !== false);
+      } catch (error) {
+        // Default to enabled if fetch fails
+        setDesignerEnabled(true);
+      }
+    };
+    fetchDesignerSettings();
+  }, []);
+
+  // Build navigation items based on designer settings
+  const navigationItems = designerEnabled
+    ? [
+        ...baseNavigationItems.slice(0, 2), // Home, Gallery
+        { name: "Design", url: "/designer" },
+        ...baseNavigationItems.slice(2), // FAQ, Blog, Contact
+      ]
+    : baseNavigationItems;
 
   return (
     <div className="min-h-screen bg-white">
@@ -149,11 +171,15 @@ export default function Layout({ children, currentPageName }) {
             </nav>
 
             <div className="hidden lg:block">
-              <Link to="/designer">
-                <Button className="bg-[var(--primary)] hover:bg-[var(--accent)] text-white font-semibold px-4 lg:px-6 py-2 lg:py-3 text-sm rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                  Design Your Hat
-                </Button>
-              </Link>
+              {designerEnabled ? (
+                <Link to="/designer">
+                  <Button className="bg-[var(--primary)] hover:bg-[var(--accent)] text-white font-semibold px-4 lg:px-6 py-2 lg:py-3 text-sm rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    Design Your Hat
+                  </Button>
+                </Link>
+              ) : (
+                <div className="w-[140px]" />
+              )}
             </div>
 
             <button
@@ -190,11 +216,13 @@ export default function Layout({ children, currentPageName }) {
                   Admin Dashboard
                 </Link>
               }
-              <Link to="/designer" className="block pt-2">
-                <Button className="w-full bg-[var(--primary)] hover:bg-[var(--accent)] text-white font-semibold py-3 rounded-lg transition-all duration-300">
-                  Design Your Hat
-                </Button>
-              </Link>
+              {designerEnabled && (
+                <Link to="/designer" className="block pt-2">
+                  <Button className="w-full bg-[var(--primary)] hover:bg-[var(--accent)] text-white font-semibold py-3 rounded-lg transition-all duration-300">
+                    Design Your Hat
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         }

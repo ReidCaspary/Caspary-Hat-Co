@@ -275,6 +275,23 @@ export const DesignerAPI = {
 
 // Hat Configuration API (for admin and designer)
 export const HatConfig = {
+  // Public endpoint - get hat designer settings
+  async getSettings() {
+    const response = await fetch(`${API_URL}/api/hat-config/settings`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch hat designer settings');
+    }
+    return response.json();
+  },
+
+  // Admin endpoint - update hat designer settings
+  async updateSettings(data) {
+    return apiFetch('/api/hat-config/settings', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
   // Public endpoint - get full config for designer
   async getConfig() {
     const response = await fetch(`${API_URL}/api/hat-config`);
