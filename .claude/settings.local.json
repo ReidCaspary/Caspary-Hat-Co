@@ -7,7 +7,11 @@
       "Bash(node:*)",
       "Bash(npm install:*)",
       "WebFetch(domain:www.customink.com)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(set DATABASE_URL=postgresql://postgres:jPJKZVryVuNnnwqgiyomnSYnbfqabPkQ@interchange.proxy.rlwy.net:59969/railway:*)",
+      "Bash(npm run db:migrate:*)",
+      "Bash(npm run db:seed:*)",
+      "Bash(powershell -command \"\\(Get-Item ''C:\\\\Projects\\\\Caspary Hat Co\\\\backup.sql''\\).Length\")"
     ]
   }
 }
