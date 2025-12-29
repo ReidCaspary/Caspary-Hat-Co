@@ -3,39 +3,82 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { DollarSign } from "lucide-react";
+import { PricingConfig } from "@/api/apiClient";
+
+// Default values (will be overridden by API config)
+const DEFAULT_MIN_HATS = 50;
+const DEFAULT_MAX_HATS = 1000;
 
 export default function PricingCalculator() {
-  const [quantity, setQuantity] = useState(144);
-  const [inputValue, setInputValue] = useState("144");
-  const MIN_HATS = 144;
-  const MAX_HATS = 1000; // changed to 1000 as requested
+  const [quantity, setQuantity] = useState(DEFAULT_MIN_HATS);
+  const [inputValue, setInputValue] = useState(DEFAULT_MIN_HATS.toString());
+  const [pricingConfig, setPricingConfig] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch pricing config on mount
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const config = await PricingConfig.getConfig();
+        setPricingConfig(config);
+        // Set initial quantity to MOQ
+        const moq = config?.settings?.min_order_quantity || DEFAULT_MIN_HATS;
+        setQuantity(moq);
+        setInputValue(moq.toString());
+      } catch (error) {
+        console.error('Failed to fetch pricing config:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchConfig();
+  }, []);
 
   useEffect(() => {
     setInputValue(quantity.toString());
   }, [quantity]);
 
-  // Pricing formula: anchors at 144 => $16, ~288 => ~$14, long-run -> $8 at 10,000
-  // This produces a smooth logarithmic decay. We still use 10,000 as long-run anchor
-  // so the curve shape matches your earlier requirements even with UI max = 1000.
+  // Get config values with defaults
+  const MIN_HATS = pricingConfig?.settings?.min_order_quantity || DEFAULT_MIN_HATS;
+  const MAX_HATS = pricingConfig?.settings?.max_ui_quantity || DEFAULT_MAX_HATS;
+  const tiers = pricingConfig?.tiers || [];
+  const variableConfig = pricingConfig?.settings?.variable || {
+    max_price: 11.00,
+    min_price: 10.00,
+    anchor_quantity: 5000,
+    exponent: 1.05
+  };
+
+  // Calculate price per hat using tiers or variable formula
   const calculatePricePerHat = (qtyInput) => {
     const qty = Math.max(MIN_HATS, qtyInput || MIN_HATS);
-    const qMin = MIN_HATS;
-    const qMaxAnchor = 1000; // long-run anchor to shape the curve
-    const pMin = 10; // floor at $8 long-run
-    const pMax = 12; // $12 at MOQ
 
-    // normalized log position between qMin and qMaxAnchor (descending)
-    const topLog = Math.log10(qMaxAnchor);
-    const minLog = Math.log10(qMin);
-    const curLog = Math.log10(Math.max(qMin, qty));
+    // First, check if quantity falls within a tier
+    for (const tier of tiers) {
+      if (qty >= tier.min_quantity && qty <= tier.max_quantity) {
+        return tier.price_per_hat;
+      }
+    }
+
+    // If no tier matches (quantity > all tiers), use variable pricing formula
+    const lastTier = tiers.length > 0 ? tiers[tiers.length - 1] : null;
+    const thresholdQty = lastTier ? lastTier.max_quantity : MIN_HATS;
+
+    const { max_price, min_price, anchor_quantity, exponent } = variableConfig;
+
+    // If below threshold, use max price
+    if (qty <= thresholdQty) {
+      return max_price;
+    }
+
+    // Variable formula for quantities beyond tiers
+    const topLog = Math.log10(anchor_quantity);
+    const minLog = Math.log10(thresholdQty);
+    const curLog = Math.log10(Math.max(thresholdQty, qty));
     const t = (topLog - curLog) / (topLog - minLog);
 
-    // exponent to make the early drop a bit steeper (tunable)
-    const exponent = 1.05;
-
-    const price = pMin + (pMax - pMin) * Math.pow(t, exponent);
-    // clamp between pMin and pMax just in case
-    return Math.max(pMin, Math.min(pMax, price));
+    const price = min_price + (max_price - min_price) * Math.pow(t, exponent);
+    return Math.max(min_price, Math.min(max_price, price));
   };
 
   const pricePerHat = calculatePricePerHat(quantity);
@@ -110,7 +153,7 @@ export default function PricingCalculator() {
            {/* Compact Steps Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8">
               {[
-                { icon: "📋", title: "Complete Quote Form", description: "Attach your logo, select your style, and submit your form (MOQ 144)." },
+                { icon: "📋", title: "Complete Quote Form", description: `Attach your logo, select your style, and submit your form (MOQ ${MIN_HATS}).` },
                 { icon: "✏️", title: "Design Consultation", description: "A design pro will reach out to discuss mockups and design details." },
                 { icon: "✅", title: "Approve & Invoice", description: "Review your final design and approve the invoice to start production." },
                 { icon: "💳", title: "50% Deposit", description: "Half is due upfront to begin your order — balance due before shipping." },
@@ -141,6 +184,25 @@ export default function PricingCalculator() {
 
             {/* Pricing Calculator Card */}
             <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 lg:p-10 max-w-lg mx-auto">
+              {/* Pricing Tiers Summary */}
+              {tiers.length > 0 && (
+                <div className="mb-6 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs font-semibold text-[var(--primary)] mb-2">Volume Pricing:</p>
+                  <div className="space-y-1 text-xs text-[var(--gray-medium)]">
+                    {tiers.map((tier, index) => (
+                      <div key={index} className="flex justify-between">
+                        <span>{tier.min_quantity} - {tier.max_quantity} hats</span>
+                        <span className="font-medium text-[var(--primary)]">${tier.price_per_hat.toFixed(2)}/hat</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between">
+                      <span>{tiers[tiers.length - 1].max_quantity}+ hats</span>
+                      <span className="font-medium text-[var(--primary)]">${variableConfig.max_price.toFixed(2)} - ${variableConfig.min_price.toFixed(2)}/hat</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Quantity Slider */}
               <div className="mb-8">
                 <label className="block text-lg sm:text-xl font-bold text-[var(--primary)] mb-4">

@@ -12,6 +12,7 @@ import imagesRoutes from './routes/images.js';
 import designerRoutes from './routes/designer.js';
 import hatConfigRoutes from './routes/hatConfig.js';
 import galleryRoutes from './routes/gallery.js';
+import pricingRoutes from './routes/pricing.js';
 
 dotenv.config();
 
@@ -68,6 +69,7 @@ app.use('/api/images', imagesRoutes);
 app.use('/api/designer', designerRoutes);
 app.use('/api/hat-config', hatConfigRoutes);
 app.use('/api/gallery', galleryRoutes);
+app.use('/api/pricing', pricingRoutes);
 
 // 404 handler
 app.use('/api/*', (req, res) => {

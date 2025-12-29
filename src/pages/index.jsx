@@ -19,6 +19,7 @@ import Media from "./admin/Media";
 import BlogAdmin from "./admin/BlogAdmin";
 import HatConfig from "./admin/HatConfig";
 import GalleryAdmin from "./admin/GalleryAdmin";
+import PricingAdmin from "./admin/PricingAdmin";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
@@ -80,6 +81,7 @@ export default function Pages() {
                     <Route path="gallery" element={<GalleryAdmin />} />
                     <Route path="media" element={<Media />} />
                     <Route path="blog" element={<BlogAdmin />} />
+                    <Route path="pricing" element={<PricingAdmin />} />
                     <Route path="hat-config" element={<HatConfig />} />
                 </Route>
 

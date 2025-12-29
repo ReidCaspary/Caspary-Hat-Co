@@ -185,3 +185,32 @@ CREATE INDEX IF NOT EXISTS idx_gallery_items_category ON gallery_items(category)
 CREATE INDEX IF NOT EXISTS idx_gallery_items_order ON gallery_items(display_order);
 CREATE INDEX IF NOT EXISTS idx_gallery_item_images_item ON gallery_item_images(gallery_item_id);
 CREATE INDEX IF NOT EXISTS idx_gallery_item_images_order ON gallery_item_images(display_order);
+
+-- Pricing configuration table
+CREATE TABLE IF NOT EXISTS pricing_config (
+    id SERIAL PRIMARY KEY,
+    config_key VARCHAR(50) UNIQUE NOT NULL,
+    config_value JSONB NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert default pricing configuration
+INSERT INTO pricing_config (config_key, config_value) VALUES
+('pricing_tiers', '[
+    {"min_quantity": 50, "max_quantity": 99, "price_per_hat": 16.00},
+    {"min_quantity": 100, "max_quantity": 149, "price_per_hat": 14.00},
+    {"min_quantity": 150, "max_quantity": 249, "price_per_hat": 13.00},
+    {"min_quantity": 250, "max_quantity": 499, "price_per_hat": 12.00},
+    {"min_quantity": 500, "max_quantity": 999, "price_per_hat": 11.00}
+]'::jsonb),
+('pricing_settings', '{
+    "variable": {
+        "max_price": 11.00,
+        "min_price": 10.00,
+        "anchor_quantity": 5000,
+        "exponent": 1.05
+    },
+    "min_order_quantity": 50,
+    "max_ui_quantity": 1000
+}'::jsonb)
+ON CONFLICT (config_key) DO NOTHING;

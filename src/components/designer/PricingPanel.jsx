@@ -1,34 +1,80 @@
 import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { DollarSign, Package, TrendingDown } from "lucide-react";
+import { PricingConfig } from "@/api/apiClient";
 
-const MIN_HATS = 144;
-const MAX_HATS = 1000;
-
-// Pricing formula from PricingCalculator
-const calculatePricePerHat = (qtyInput) => {
-  const qty = Math.max(MIN_HATS, qtyInput || MIN_HATS);
-  const qMin = MIN_HATS;
-  const qMaxAnchor = 1000;
-  const pMin = 10;
-  const pMax = 12;
-
-  const topLog = Math.log10(qMaxAnchor);
-  const minLog = Math.log10(qMin);
-  const curLog = Math.log10(Math.max(qMin, qty));
-  const t = (topLog - curLog) / (topLog - minLog);
-
-  const exponent = 1.05;
-  const price = pMin + (pMax - pMin) * Math.pow(t, exponent);
-  return Math.max(pMin, Math.min(pMax, price));
-};
+// Default values (will be overridden by API config)
+const DEFAULT_MIN_HATS = 50;
+const DEFAULT_MAX_HATS = 1000;
 
 export default function PricingPanel({ quantity, onQuantityChange }) {
   const [inputValue, setInputValue] = useState(quantity.toString());
+  const [pricingConfig, setPricingConfig] = useState(null);
+
+  // Fetch pricing config on mount
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const config = await PricingConfig.getConfig();
+        setPricingConfig(config);
+        // Adjust quantity if below new MOQ
+        const moq = config?.settings?.min_order_quantity || DEFAULT_MIN_HATS;
+        if (quantity < moq) {
+          onQuantityChange(moq);
+        }
+      } catch (error) {
+        console.error('Failed to fetch pricing config:', error);
+      }
+    };
+    fetchConfig();
+  }, []);
 
   useEffect(() => {
     setInputValue(quantity.toString());
   }, [quantity]);
+
+  // Get config values with defaults
+  const MIN_HATS = pricingConfig?.settings?.min_order_quantity || DEFAULT_MIN_HATS;
+  const MAX_HATS = pricingConfig?.settings?.max_ui_quantity || DEFAULT_MAX_HATS;
+  const tiers = pricingConfig?.tiers || [];
+  const variableConfig = pricingConfig?.settings?.variable || {
+    max_price: 11.00,
+    min_price: 10.00,
+    anchor_quantity: 5000,
+    exponent: 1.05
+  };
+
+  // Calculate price per hat using tiers or variable formula
+  const calculatePricePerHat = (qtyInput) => {
+    const qty = Math.max(MIN_HATS, qtyInput || MIN_HATS);
+
+    // First, check if quantity falls within a tier
+    for (const tier of tiers) {
+      if (qty >= tier.min_quantity && qty <= tier.max_quantity) {
+        return tier.price_per_hat;
+      }
+    }
+
+    // If no tier matches (quantity > all tiers), use variable pricing formula
+    const lastTier = tiers.length > 0 ? tiers[tiers.length - 1] : null;
+    const thresholdQty = lastTier ? lastTier.max_quantity : MIN_HATS;
+
+    const { max_price, min_price, anchor_quantity, exponent } = variableConfig;
+
+    // If below threshold, use max price
+    if (qty <= thresholdQty) {
+      return max_price;
+    }
+
+    // Variable formula for quantities beyond tiers
+    const topLog = Math.log10(anchor_quantity);
+    const minLog = Math.log10(thresholdQty);
+    const curLog = Math.log10(Math.max(thresholdQty, qty));
+    const t = (topLog - curLog) / (topLog - minLog);
+
+    const price = min_price + (max_price - min_price) * Math.pow(t, exponent);
+    return Math.max(min_price, Math.min(max_price, price));
+  };
 
   const pricePerHat = calculatePricePerHat(quantity);
   const totalPrice = quantity * pricePerHat;

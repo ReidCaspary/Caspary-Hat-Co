@@ -380,6 +380,20 @@ export const UploadFile = async (file) => {
   return { file_url: result.url };
 };
 
+// Pricing Configuration API
+export const PricingConfig = {
+  async getConfig() {
+    return apiFetch('/api/pricing/config');
+  },
+
+  async updateConfig(data) {
+    return apiFetch('/api/pricing/config', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+};
+
 // Gallery Item API
 export const GalleryItem = {
   async findMany(options = {}) {
@@ -457,5 +471,6 @@ export default {
   DesignerAPI,
   HatConfig,
   UploadFile,
+  PricingConfig,
   GalleryItem,
 };

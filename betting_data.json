@@ -1,0 +1,712 @@
+{
+  "atp_players": {
+    "Jannik Sinner": {
+      "name": "Jannik Sinner",
+      "tour": "ATP",
+      "overall_elo": 1680,
+      "surface_elo": {
+        "Hard": 1680,
+        "Clay": 1680,
+        "Grass": 1680
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Carlos Alcaraz": {
+      "name": "Carlos Alcaraz",
+      "tour": "ATP",
+      "overall_elo": 1660,
+      "surface_elo": {
+        "Hard": 1660,
+        "Clay": 1660,
+        "Grass": 1660
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Novak Djokovic": {
+      "name": "Novak Djokovic",
+      "tour": "ATP",
+      "overall_elo": 1620,
+      "surface_elo": {
+        "Hard": 1620,
+        "Clay": 1620,
+        "Grass": 1620
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Daniil Medvedev": {
+      "name": "Daniil Medvedev",
+      "tour": "ATP",
+      "overall_elo": 1560,
+      "surface_elo": {
+        "Hard": 1560,
+        "Clay": 1560,
+        "Grass": 1560
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Alexander Zverev": {
+      "name": "Alexander Zverev",
+      "tour": "ATP",
+      "overall_elo": 1540,
+      "surface_elo": {
+        "Hard": 1540,
+        "Clay": 1540,
+        "Grass": 1540
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Andrey Rublev": {
+      "name": "Andrey Rublev",
+      "tour": "ATP",
+      "overall_elo": 1500,
+      "surface_elo": {
+        "Hard": 1500,
+        "Clay": 1500,
+        "Grass": 1500
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Casper Ruud": {
+      "name": "Casper Ruud",
+      "tour": "ATP",
+      "overall_elo": 1490,
+      "surface_elo": {
+        "Hard": 1490,
+        "Clay": 1490,
+        "Grass": 1490
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Hubert Hurkacz": {
+      "name": "Hubert Hurkacz",
+      "tour": "ATP",
+      "overall_elo": 1480,
+      "surface_elo": {
+        "Hard": 1480,
+        "Clay": 1480,
+        "Grass": 1480
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Taylor Fritz": {
+      "name": "Taylor Fritz",
+      "tour": "ATP",
+      "overall_elo": 1480,
+      "surface_elo": {
+        "Hard": 1480,
+        "Clay": 1480,
+        "Grass": 1480
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Grigor Dimitrov": {
+      "name": "Grigor Dimitrov",
+      "tour": "ATP",
+      "overall_elo": 1470,
+      "surface_elo": {
+        "Hard": 1470,
+        "Clay": 1470,
+        "Grass": 1470
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Alex de Minaur": {
+      "name": "Alex de Minaur",
+      "tour": "ATP",
+      "overall_elo": 1470,
+      "surface_elo": {
+        "Hard": 1470,
+        "Clay": 1470,
+        "Grass": 1470
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Stefanos Tsitsipas": {
+      "name": "Stefanos Tsitsipas",
+      "tour": "ATP",
+      "overall_elo": 1465,
+      "surface_elo": {
+        "Hard": 1465,
+        "Clay": 1465,
+        "Grass": 1465
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Tommy Paul": {
+      "name": "Tommy Paul",
+      "tour": "ATP",
+      "overall_elo": 1460,
+      "surface_elo": {
+        "Hard": 1460,
+        "Clay": 1460,
+        "Grass": 1460
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Holger Rune": {
+      "name": "Holger Rune",
+      "tour": "ATP",
+      "overall_elo": 1455,
+      "surface_elo": {
+        "Hard": 1455,
+        "Clay": 1455,
+        "Grass": 1455
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Ben Shelton": {
+      "name": "Ben Shelton",
+      "tour": "ATP",
+      "overall_elo": 1450,
+      "surface_elo": {
+        "Hard": 1450,
+        "Clay": 1450,
+        "Grass": 1450
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Frances Tiafoe": {
+      "name": "Frances Tiafoe",
+      "tour": "ATP",
+      "overall_elo": 1445,
+      "surface_elo": {
+        "Hard": 1445,
+        "Clay": 1445,
+        "Grass": 1445
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Sebastian Korda": {
+      "name": "Sebastian Korda",
+      "tour": "ATP",
+      "overall_elo": 1440,
+      "surface_elo": {
+        "Hard": 1440,
+        "Clay": 1440,
+        "Grass": 1440
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Ugo Humbert": {
+      "name": "Ugo Humbert",
+      "tour": "ATP",
+      "overall_elo": 1435,
+      "surface_elo": {
+        "Hard": 1435,
+        "Clay": 1435,
+        "Grass": 1435
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Felix Auger-Aliassime": {
+      "name": "Felix Auger-Aliassime",
+      "tour": "ATP",
+      "overall_elo": 1430,
+      "surface_elo": {
+        "Hard": 1430,
+        "Clay": 1430,
+        "Grass": 1430
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Jack Draper": {
+      "name": "Jack Draper",
+      "tour": "ATP",
+      "overall_elo": 1430,
+      "surface_elo": {
+        "Hard": 1430,
+        "Clay": 1430,
+        "Grass": 1430
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Lorenzo Musetti": {
+      "name": "Lorenzo Musetti",
+      "tour": "ATP",
+      "overall_elo": 1425,
+      "surface_elo": {
+        "Hard": 1425,
+        "Clay": 1425,
+        "Grass": 1425
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Karen Khachanov": {
+      "name": "Karen Khachanov",
+      "tour": "ATP",
+      "overall_elo": 1420,
+      "surface_elo": {
+        "Hard": 1420,
+        "Clay": 1420,
+        "Grass": 1420
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Tomas Machac": {
+      "name": "Tomas Machac",
+      "tour": "ATP",
+      "overall_elo": 1415,
+      "surface_elo": {
+        "Hard": 1415,
+        "Clay": 1415,
+        "Grass": 1415
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Nicolas Jarry": {
+      "name": "Nicolas Jarry",
+      "tour": "ATP",
+      "overall_elo": 1410,
+      "surface_elo": {
+        "Hard": 1410,
+        "Clay": 1410,
+        "Grass": 1410
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Alejandro Tabilo": {
+      "name": "Alejandro Tabilo",
+      "tour": "ATP",
+      "overall_elo": 1405,
+      "surface_elo": {
+        "Hard": 1405,
+        "Clay": 1405,
+        "Grass": 1405
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Francisco Cerundolo": {
+      "name": "Francisco Cerundolo",
+      "tour": "ATP",
+      "overall_elo": 1400,
+      "surface_elo": {
+        "Hard": 1400,
+        "Clay": 1400,
+        "Grass": 1400
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Tallon Griekspoor": {
+      "name": "Tallon Griekspoor",
+      "tour": "ATP",
+      "overall_elo": 1395,
+      "surface_elo": {
+        "Hard": 1395,
+        "Clay": 1395,
+        "Grass": 1395
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Arthur Fils": {
+      "name": "Arthur Fils",
+      "tour": "ATP",
+      "overall_elo": 1390,
+      "surface_elo": {
+        "Hard": 1390,
+        "Clay": 1390,
+        "Grass": 1390
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Giovanni Mpetshi Perricard": {
+      "name": "Giovanni Mpetshi Perricard",
+      "tour": "ATP",
+      "overall_elo": 1385,
+      "surface_elo": {
+        "Hard": 1385,
+        "Clay": 1385,
+        "Grass": 1385
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Jan-Lennard Struff": {
+      "name": "Jan-Lennard Struff",
+      "tour": "ATP",
+      "overall_elo": 1380,
+      "surface_elo": {
+        "Hard": 1380,
+        "Clay": 1380,
+        "Grass": 1380
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    }
+  },
+  "wta_players": {
+    "Aryna Sabalenka": {
+      "name": "Aryna Sabalenka",
+      "tour": "WTA",
+      "overall_elo": 1660,
+      "surface_elo": {
+        "Hard": 1660,
+        "Clay": 1660,
+        "Grass": 1660
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Iga Swiatek": {
+      "name": "Iga Swiatek",
+      "tour": "WTA",
+      "overall_elo": 1640,
+      "surface_elo": {
+        "Hard": 1640,
+        "Clay": 1640,
+        "Grass": 1640
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Coco Gauff": {
+      "name": "Coco Gauff",
+      "tour": "WTA",
+      "overall_elo": 1580,
+      "surface_elo": {
+        "Hard": 1580,
+        "Clay": 1580,
+        "Grass": 1580
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Jessica Pegula": {
+      "name": "Jessica Pegula",
+      "tour": "WTA",
+      "overall_elo": 1540,
+      "surface_elo": {
+        "Hard": 1540,
+        "Clay": 1540,
+        "Grass": 1540
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Qinwen Zheng": {
+      "name": "Qinwen Zheng",
+      "tour": "WTA",
+      "overall_elo": 1530,
+      "surface_elo": {
+        "Hard": 1530,
+        "Clay": 1530,
+        "Grass": 1530
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Elena Rybakina": {
+      "name": "Elena Rybakina",
+      "tour": "WTA",
+      "overall_elo": 1520,
+      "surface_elo": {
+        "Hard": 1520,
+        "Clay": 1520,
+        "Grass": 1520
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Jasmine Paolini": {
+      "name": "Jasmine Paolini",
+      "tour": "WTA",
+      "overall_elo": 1500,
+      "surface_elo": {
+        "Hard": 1500,
+        "Clay": 1500,
+        "Grass": 1500
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Emma Navarro": {
+      "name": "Emma Navarro",
+      "tour": "WTA",
+      "overall_elo": 1490,
+      "surface_elo": {
+        "Hard": 1490,
+        "Clay": 1490,
+        "Grass": 1490
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Daria Kasatkina": {
+      "name": "Daria Kasatkina",
+      "tour": "WTA",
+      "overall_elo": 1480,
+      "surface_elo": {
+        "Hard": 1480,
+        "Clay": 1480,
+        "Grass": 1480
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Barbora Krejcikova": {
+      "name": "Barbora Krejcikova",
+      "tour": "WTA",
+      "overall_elo": 1475,
+      "surface_elo": {
+        "Hard": 1475,
+        "Clay": 1475,
+        "Grass": 1475
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Danielle Collins": {
+      "name": "Danielle Collins",
+      "tour": "WTA",
+      "overall_elo": 1470,
+      "surface_elo": {
+        "Hard": 1470,
+        "Clay": 1470,
+        "Grass": 1470
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Madison Keys": {
+      "name": "Madison Keys",
+      "tour": "WTA",
+      "overall_elo": 1465,
+      "surface_elo": {
+        "Hard": 1465,
+        "Clay": 1465,
+        "Grass": 1465
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Ons Jabeur": {
+      "name": "Ons Jabeur",
+      "tour": "WTA",
+      "overall_elo": 1460,
+      "surface_elo": {
+        "Hard": 1460,
+        "Clay": 1460,
+        "Grass": 1460
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Donna Vekic": {
+      "name": "Donna Vekic",
+      "tour": "WTA",
+      "overall_elo": 1455,
+      "surface_elo": {
+        "Hard": 1455,
+        "Clay": 1455,
+        "Grass": 1455
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Marta Kostyuk": {
+      "name": "Marta Kostyuk",
+      "tour": "WTA",
+      "overall_elo": 1450,
+      "surface_elo": {
+        "Hard": 1450,
+        "Clay": 1450,
+        "Grass": 1450
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Anna Kalinskaya": {
+      "name": "Anna Kalinskaya",
+      "tour": "WTA",
+      "overall_elo": 1445,
+      "surface_elo": {
+        "Hard": 1445,
+        "Clay": 1445,
+        "Grass": 1445
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Diana Shnaider": {
+      "name": "Diana Shnaider",
+      "tour": "WTA",
+      "overall_elo": 1440,
+      "surface_elo": {
+        "Hard": 1440,
+        "Clay": 1440,
+        "Grass": 1440
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Mirra Andreeva": {
+      "name": "Mirra Andreeva",
+      "tour": "WTA",
+      "overall_elo": 1435,
+      "surface_elo": {
+        "Hard": 1435,
+        "Clay": 1435,
+        "Grass": 1435
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Paula Badosa": {
+      "name": "Paula Badosa",
+      "tour": "WTA",
+      "overall_elo": 1430,
+      "surface_elo": {
+        "Hard": 1430,
+        "Clay": 1430,
+        "Grass": 1430
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Beatriz Haddad Maia": {
+      "name": "Beatriz Haddad Maia",
+      "tour": "WTA",
+      "overall_elo": 1425,
+      "surface_elo": {
+        "Hard": 1425,
+        "Clay": 1425,
+        "Grass": 1425
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Leylah Fernandez": {
+      "name": "Leylah Fernandez",
+      "tour": "WTA",
+      "overall_elo": 1420,
+      "surface_elo": {
+        "Hard": 1420,
+        "Clay": 1420,
+        "Grass": 1420
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Karolina Muchova": {
+      "name": "Karolina Muchova",
+      "tour": "WTA",
+      "overall_elo": 1415,
+      "surface_elo": {
+        "Hard": 1415,
+        "Clay": 1415,
+        "Grass": 1415
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Liudmila Samsonova": {
+      "name": "Liudmila Samsonova",
+      "tour": "WTA",
+      "overall_elo": 1410,
+      "surface_elo": {
+        "Hard": 1410,
+        "Clay": 1410,
+        "Grass": 1410
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    },
+    "Elina Svitolina": {
+      "name": "Elina Svitolina",
+      "tour": "WTA",
+      "overall_elo": 1405,
+      "surface_elo": {
+        "Hard": 1405,
+        "Clay": 1405,
+        "Grass": 1405
+      },
+      "recent_form": [],
+      "h2h": {},
+      "matches_played": 20
+    }
+  },
+  "pending_matches": [],
+  "bet_history": [],
+  "bankroll": 1000.0,
+  "unit_size": 50.0
+}

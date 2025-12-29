@@ -13,7 +13,8 @@ import {
   ChevronRight,
   Home,
   Settings,
-  Images
+  Images,
+  DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -24,6 +25,7 @@ const adminNavItems = [
   { name: "Gallery", path: "/admin/gallery", icon: Images },
   { name: "Media Library", path: "/admin/media", icon: Image },
   { name: "Blog Posts", path: "/admin/blog", icon: FileText },
+  { name: "Pricing", path: "/admin/pricing", icon: DollarSign },
   { name: "Hat Designer Config", path: "/admin/hat-config", icon: Settings },
 ];
 
