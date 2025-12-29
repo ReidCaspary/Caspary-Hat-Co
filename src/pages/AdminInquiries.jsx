@@ -54,10 +54,10 @@ export default function AdminInquiries() {
   });
 
   const downloadWhiteboard = (inquiry) => {
-    if (!inquiry.whiteboard_image) return;
-    
+    if (!inquiry.whiteboard_image_url) return;
+
     const link = document.createElement("a");
-    link.href = inquiry.whiteboard_image;
+    link.href = inquiry.whiteboard_image_url;
     link.download = `whiteboard-${inquiry.name}-${inquiry.id}.png`;
     link.click();
   };
@@ -144,10 +144,10 @@ export default function AdminInquiries() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-[var(--gray-medium)]">
-                        {inquiry.subject || '-'}
+                        {inquiry.event_type || '-'}
                       </td>
                       <td className="px-6 py-4 text-sm text-[var(--gray-medium)]">
-                        {inquiry.quantity || '-'}
+                        {inquiry.quantity != null ? inquiry.quantity : '-'}
                       </td>
                       <td className="px-6 py-4">
                         <select
@@ -161,7 +161,7 @@ export default function AdminInquiries() {
                         </select>
                       </td>
                       <td className="px-6 py-4">
-                        {inquiry.whiteboard_image ? (
+                        {inquiry.whiteboard_image_url ? (
                           <Badge className="bg-[var(--accent)] text-white">
                             <ImageIcon className="w-3 h-3 mr-1" />
                             Has Whiteboard
@@ -179,7 +179,7 @@ export default function AdminInquiries() {
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          {inquiry.whiteboard_image && (
+                          {inquiry.whiteboard_image_url && (
                             <Button
                               variant="outline"
                               size="sm"
@@ -243,13 +243,13 @@ export default function AdminInquiries() {
 
                 {/* Style and Quantity */}
                 <div className="grid grid-cols-2 gap-4">
-                  {selectedInquiry.subject && (
+                  {selectedInquiry.event_type && (
                     <div>
                       <label className="text-sm font-semibold text-[var(--primary)] block mb-2">Style</label>
-                      <p className="text-[var(--gray-medium)]">{selectedInquiry.subject}</p>
+                      <p className="text-[var(--gray-medium)]">{selectedInquiry.event_type}</p>
                     </div>
                   )}
-                  {selectedInquiry.quantity && (
+                  {selectedInquiry.quantity != null && (
                     <div>
                       <label className="text-sm font-semibold text-[var(--primary)] block mb-2">Quantity</label>
                       <p className="text-[var(--gray-medium)]">{selectedInquiry.quantity}</p>
@@ -266,12 +266,12 @@ export default function AdminInquiries() {
                 </div>
 
                 {/* Whiteboard */}
-                {selectedInquiry.whiteboard_image && (
+                {selectedInquiry.whiteboard_image_url && (
                   <div>
                     <label className="text-sm font-semibold text-[var(--primary)] block mb-2">Design Whiteboard</label>
                     <div className="border-2 border-[var(--primary)]/20 rounded-lg overflow-hidden">
                       <img
-                        src={selectedInquiry.whiteboard_image}
+                        src={selectedInquiry.whiteboard_image_url}
                         alt="Customer whiteboard"
                         className="w-full h-auto"
                       />

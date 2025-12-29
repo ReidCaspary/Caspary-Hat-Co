@@ -696,24 +696,32 @@ const WhiteboardComponent = React.forwardRef(({ onSave }, ref) => {
 
   const exportCanvas = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const exportCanvas = document.createElement('canvas');
-    exportCanvas.width = canvas.width;
-    exportCanvas.height = canvas.height;
-    const ctx = exportCanvas.getContext('2d');
-    
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-    
-    ctx.save();
-    elements.forEach(element => {
-      drawElement(ctx, element);
-    });
-    ctx.restore();
-    
-    const dataUrl = exportCanvas.toDataURL("image/png");
-    return dataUrl;
+    if (!canvas) return null;
+
+    // Don't export if there are no elements (empty canvas)
+    if (elements.length === 0) return null;
+
+    try {
+      const exportCanvasEl = document.createElement('canvas');
+      exportCanvasEl.width = canvas.width;
+      exportCanvasEl.height = canvas.height;
+      const ctx = exportCanvasEl.getContext('2d');
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, exportCanvasEl.width, exportCanvasEl.height);
+
+      ctx.save();
+      elements.forEach(element => {
+        drawElement(ctx, element);
+      });
+      ctx.restore();
+
+      const dataUrl = exportCanvasEl.toDataURL("image/png");
+      return dataUrl;
+    } catch (error) {
+      console.error('Canvas export failed (possible CORS issue with images):', error);
+      return null;
+    }
   };
 
   const downloadCanvas = () => {

@@ -211,7 +211,7 @@ export default function Inquiries() {
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm text-gray-900">{inquiry.event_type || '-'}</p>
-                      {inquiry.quantity && (
+                      {inquiry.quantity != null && (
                         <p className="text-sm text-gray-500">{inquiry.quantity} hats</p>
                       )}
                     </td>
@@ -257,7 +257,7 @@ export default function Inquiries() {
 
       {/* Detail Modal */}
       <Dialog open={!!selectedInquiry} onOpenChange={() => setSelectedInquiry(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Inquiry Details</DialogTitle>
           </DialogHeader>
@@ -294,7 +294,7 @@ export default function Inquiries() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Quantity</p>
-                  <p className="font-medium">{selectedInquiry.quantity || '-'}</p>
+                  <p className="font-medium">{selectedInquiry.quantity != null ? selectedInquiry.quantity : '-'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Hat Style</p>
@@ -325,6 +325,27 @@ export default function Inquiries() {
                     className="text-[var(--accent)] hover:underline"
                   >
                     View Attachment
+                  </a>
+                </div>
+              )}
+
+              {selectedInquiry.whiteboard_image_url && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Whiteboard Design</p>
+                  <div className="border rounded-lg overflow-hidden">
+                    <img
+                      src={selectedInquiry.whiteboard_image_url}
+                      alt="Customer whiteboard design"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                  <a
+                    href={selectedInquiry.whiteboard_image_url}
+                    download={`whiteboard-${selectedInquiry.name}-${selectedInquiry.id}.png`}
+                    className="inline-flex items-center gap-2 mt-2 text-[var(--accent)] hover:underline"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download Whiteboard
                   </a>
                 </div>
               )}

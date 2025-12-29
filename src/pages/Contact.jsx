@@ -61,9 +61,18 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate required fields before proceeding
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      return; // Let HTML5 validation handle the error display
+    }
+
     let exportedWhiteboardData = null;
     if (whiteboardRef.current && whiteboardRef.current.exportCanvas) {
-      exportedWhiteboardData = await whiteboardRef.current.exportCanvas();
+      try {
+        exportedWhiteboardData = whiteboardRef.current.exportCanvas();
+      } catch (error) {
+        console.error('Whiteboard export failed:', error);
+      }
     }
 
     createInquiry.mutate({
