@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { MapPin, Phone, Mail, Clock, CheckCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, CheckCircle, Truck } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Whiteboard from "../components/Whiteboard";
 
@@ -15,7 +15,13 @@ export default function Contact() {
     phone: "",
     subject: "",
     message: "",
-    quantity: "0"
+    quantity: "0",
+    shippingAddress: {
+      street: "",
+      city: "",
+      state: "",
+      zipCode: ""
+    }
   });
   const [submitted, setSubmitted] = useState(false);
   const whiteboardRef = useRef(null);
@@ -45,12 +51,21 @@ export default function Contact() {
         event_type: data.subject,
         message: data.message,
         quantity: data.quantity,
-        whiteboard_image: data.whiteboardData
+        whiteboard_image: data.whiteboardData,
+        shipping_address: data.shippingAddress
       });
     },
     onSuccess: () => {
       setSubmitted(true);
-      setFormData({ name: "", email: "", phone: "", subject: "", message: "", quantity: "0" });
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+        quantity: "0",
+        shippingAddress: { street: "", city: "", state: "", zipCode: "" }
+      });
       if (whiteboardRef.current && whiteboardRef.current.clearCanvas) {
         whiteboardRef.current.clearCanvas();
       }
@@ -86,6 +101,17 @@ export default function Contact() {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleShippingChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      shippingAddress: {
+        ...prev.shippingAddress,
+        [name]: value
+      }
+    }));
   };
 
   return (
@@ -272,6 +298,71 @@ export default function Contact() {
                         onChange={handleChange}
                         placeholder="e.g., Classic Trucker, Rope Hat, Corduroy"
                         className="w-full h-9" />
+                    </div>
+                  </div>
+
+                  {/* Shipping Address Section */}
+                  <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Truck className="w-5 h-5 text-[var(--orange)]" />
+                      <h3 className="text-sm font-semibold text-[var(--black)]">Shipping Address</h3>
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--black)] mb-1">
+                          Street Address
+                        </label>
+                        <Input
+                          type="text"
+                          name="street"
+                          value={formData.shippingAddress.street}
+                          onChange={handleShippingChange}
+                          placeholder="123 Main St"
+                          autoComplete="street-address"
+                          className="w-full h-9"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="col-span-2">
+                          <label className="block text-sm font-medium text-[var(--black)] mb-1">
+                            City
+                          </label>
+                          <Input
+                            type="text"
+                            name="city"
+                            value={formData.shippingAddress.city}
+                            onChange={handleShippingChange}
+                            placeholder="City"
+                            autoComplete="address-level2"
+                            className="w-full h-9" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-[var(--black)] mb-1">
+                            State
+                          </label>
+                          <Input
+                            type="text"
+                            name="state"
+                            value={formData.shippingAddress.state}
+                            onChange={handleShippingChange}
+                            placeholder="TX"
+                            autoComplete="address-level1"
+                            className="w-full h-9" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-[var(--black)] mb-1">
+                            ZIP Code
+                          </label>
+                          <Input
+                            type="text"
+                            name="zipCode"
+                            value={formData.shippingAddress.zipCode}
+                            onChange={handleShippingChange}
+                            placeholder="77001"
+                            autoComplete="postal-code"
+                            className="w-full h-9" />
+                        </div>
+                      </div>
                     </div>
                   </div>
 

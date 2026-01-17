@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Eye, Download, Trash2, Mail, Phone, Calendar, Image as ImageIcon } from "lucide-react";
+import { Eye, Download, Trash2, Mail, Phone, Calendar, Image as ImageIcon, Truck } from "lucide-react";
 import { format } from "date-fns";
 
 export default function AdminInquiries() {
@@ -110,6 +110,7 @@ export default function AdminInquiries() {
                     <th className="px-6 py-4 text-left text-sm font-bold">Quantity</th>
                     <th className="px-6 py-4 text-left text-sm font-bold">Status</th>
                     <th className="px-6 py-4 text-left text-sm font-bold">Whiteboard</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold">Shipping</th>
                     <th className="px-6 py-4 text-left text-sm font-bold">Actions</th>
                   </tr>
                 </thead>
@@ -168,6 +169,16 @@ export default function AdminInquiries() {
                           </Badge>
                         ) : (
                           <span className="text-xs text-[var(--gray-medium)]">No whiteboard</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        {inquiry.shipping_address?.street ? (
+                          <Badge className="bg-blue-100 text-blue-800">
+                            <Truck className="w-3 h-3 mr-1" />
+                            Has Address
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-[var(--gray-medium)]">No address</span>
                         )}
                       </td>
                       <td className="px-6 py-4">
@@ -256,6 +267,25 @@ export default function AdminInquiries() {
                     </div>
                   )}
                 </div>
+
+                {/* Shipping Address */}
+                {selectedInquiry.shipping_address?.street && (
+                  <div>
+                    <label className="text-sm font-semibold text-[var(--primary)] flex items-center gap-2 mb-2">
+                      <Truck className="w-4 h-4" />
+                      Shipping Address
+                    </label>
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <p className="text-[var(--gray-medium)]">
+                        {selectedInquiry.shipping_address.street}
+                      </p>
+                      <p className="text-[var(--gray-medium)]">
+                        {selectedInquiry.shipping_address.city}{selectedInquiry.shipping_address.city && selectedInquiry.shipping_address.state ? ', ' : ''}
+                        {selectedInquiry.shipping_address.state} {selectedInquiry.shipping_address.zipCode}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Message */}
                 <div>
