@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ContactInquiry } from "@/api/apiClient";
 import { Button } from "@/components/ui/button";
@@ -6,17 +6,15 @@ import { Input } from "@/components/ui/input";
 import {
   Search,
   Mail,
-  Phone,
-  Calendar,
-  MessageSquare,
   Trash2,
   Eye,
-  X,
   Download,
   CheckCircle,
   Clock,
-  AlertCircle
+  AlertCircle,
+  FileText
 } from "lucide-react";
+import InvoiceBuilder from "@/components/admin/InvoiceBuilder";
 import { format } from "date-fns";
 import {
   Select,
@@ -36,6 +34,7 @@ export default function Inquiries() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedInquiry, setSelectedInquiry] = useState(null);
+  const [invoiceInquiry, setInvoiceInquiry] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: inquiries = [], isLoading } = useQuery({
@@ -269,10 +268,6 @@ export default function Inquiries() {
                   <p className="font-medium">{selectedInquiry.name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Company</p>
-                  <p className="font-medium">{selectedInquiry.company || '-'}</p>
-                </div>
-                <div>
                   <p className="text-sm text-gray-500">Email</p>
                   <a href={`mailto:${selectedInquiry.email}`} className="font-medium text-[var(--accent)] hover:underline">
                     {selectedInquiry.email}
@@ -289,7 +284,7 @@ export default function Inquiries() {
                   )}
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Event Type</p>
+                  <p className="text-sm text-gray-500">Style</p>
                   <p className="font-medium">{selectedInquiry.event_type || '-'}</p>
                 </div>
                 <div>
@@ -297,12 +292,18 @@ export default function Inquiries() {
                   <p className="font-medium">{selectedInquiry.quantity != null ? selectedInquiry.quantity : '-'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Hat Style</p>
-                  <p className="font-medium">{selectedInquiry.hat_style || '-'}</p>
-                </div>
-                <div>
                   <p className="text-sm text-gray-500">Date</p>
                   <p className="font-medium">{format(new Date(selectedInquiry.created_at), 'MMM d, yyyy h:mm a')}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-sm text-gray-500">Shipping Address</p>
+                  <p className="font-medium">
+                    {selectedInquiry.shipping_address?.street ? (
+                      <>
+                        {selectedInquiry.shipping_address.street}, {selectedInquiry.shipping_address.city}, {selectedInquiry.shipping_address.state} {selectedInquiry.shipping_address.zipCode}
+                      </>
+                    ) : '-'}
+                  </p>
                 </div>
               </div>
 
@@ -369,10 +370,28 @@ export default function Inquiries() {
                   ))}
                 </div>
               </div>
+
+              {/* Create Invoice Button */}
+              <div className="pt-4 border-t">
+                <Button
+                  onClick={() => setInvoiceInquiry(selectedInquiry)}
+                  className="w-full bg-[var(--accent)] hover:bg-[var(--accent)]/90"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Create Invoice
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Invoice Builder Modal */}
+      <InvoiceBuilder
+        inquiry={invoiceInquiry}
+        open={!!invoiceInquiry}
+        onClose={() => setInvoiceInquiry(null)}
+      />
     </div>
   );
 }
