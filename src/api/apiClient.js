@@ -89,6 +89,8 @@ export const ContactInquiry = {
           formData.append('file', data[key]);
         } else if (key === 'whiteboard_image') {
           formData.append('whiteboard_image', data[key]);
+        } else if (key === 'shipping_address' && typeof data[key] === 'object') {
+          formData.append(key, JSON.stringify(data[key]));
         } else {
           formData.append(key, data[key]);
         }

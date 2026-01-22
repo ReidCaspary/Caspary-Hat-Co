@@ -21,11 +21,20 @@ CREATE TABLE IF NOT EXISTS contact_inquiries (
     event_date DATE,
     quantity INTEGER,
     budget VARCHAR(100),
+    shipping_address JSONB,
     whiteboard_image_url TEXT,
     file_url TEXT,
     status VARCHAR(50) DEFAULT 'new' CHECK (status IN ('new', 'in_progress', 'completed', 'archived')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Add shipping_address column if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'contact_inquiries' AND column_name = 'shipping_address') THEN
+        ALTER TABLE contact_inquiries ADD COLUMN shipping_address JSONB;
+    END IF;
+END $$;
 
 -- Blog posts table
 CREATE TABLE IF NOT EXISTS blog_posts (

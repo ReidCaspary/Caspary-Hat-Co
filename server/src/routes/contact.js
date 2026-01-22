@@ -35,6 +35,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       event_date,
       quantity,
       budget,
+      shipping_address,
       whiteboard_image // Base64 string
     } = req.body;
 
@@ -69,11 +70,23 @@ router.post('/', upload.single('file'), async (req, res) => {
       }
     }
 
+    // Parse shipping_address if it's a string (from FormData)
+    let parsedShippingAddress = null;
+    if (shipping_address) {
+      try {
+        parsedShippingAddress = typeof shipping_address === 'string'
+          ? JSON.parse(shipping_address)
+          : shipping_address;
+      } catch (e) {
+        console.error('Failed to parse shipping_address:', e);
+      }
+    }
+
     // Save to database
     const result = await pool.query(
       `INSERT INTO contact_inquiries
-       (name, email, phone, message, event_type, event_date, quantity, budget, whiteboard_image_url, file_url)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       (name, email, phone, message, event_type, event_date, quantity, budget, shipping_address, whiteboard_image_url, file_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
       [
         name,
@@ -84,6 +97,7 @@ router.post('/', upload.single('file'), async (req, res) => {
         event_date || null,
         quantity ? parseInt(quantity) : null,
         budget || null,
+        parsedShippingAddress,
         whiteboardUrl,
         fileUrl
       ]
