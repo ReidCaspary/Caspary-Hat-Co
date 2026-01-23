@@ -28,7 +28,7 @@ const BRAND_COLORS = {
 };
 
 const generateDefaultInvoiceNumber = () => {
-  const dateStr = format(new Date(), "yyyyMMdd");
+  const dateStr = format(new Date(), "MMddyy");
   return `INV-${dateStr}-001`;
 };
 

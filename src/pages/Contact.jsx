@@ -160,18 +160,6 @@ export default function Contact() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-[var(--navy)]/10 rounded-lg flex items-center justify-center">
-                    <Phone className="w-5 h-5 text-[var(--navy)]" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-[var(--black)] mb-1 text-sm">Phone</h3>
-                    <a href="tel:+12818148024" className="text-[var(--gray-medium)] hover:text-[var(--orange)] transition-colors text-sm">
-                      (281) 814 8024
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-10 h-10 bg-[var(--orange)]/10 rounded-lg flex items-center justify-center">
                     <Mail className="w-5 h-5 text-[var(--orange)]" />
                   </div>
@@ -179,6 +167,18 @@ export default function Contact() {
                     <h3 className="font-semibold text-[var(--black)] mb-1 text-sm">Email</h3>
                     <a href="mailto:info@casparyhatco.com" className="text-[var(--gray-medium)] hover:text-[var(--orange)] transition-colors text-sm">sales@casparyhats.com
 
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 bg-[var(--navy)]/10 rounded-lg flex items-center justify-center">
+                    <Phone className="w-5 h-5 text-[var(--navy)]" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[var(--black)] mb-1 text-sm">Phone</h3>
+                    <a href="tel:+12818148024" className="text-[var(--gray-medium)] hover:text-[var(--orange)] transition-colors text-sm">
+                      (281) 814 8024
                     </a>
                   </div>
                 </div>
@@ -261,19 +261,7 @@ export default function Contact() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--black)] mb-1">
-                        Phone
-                      </label>
-                      <Input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        placeholder="(555) 123-4567"
-                        className="w-full h-9" />
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-[var(--black)] mb-1">
                         Quantity
@@ -362,6 +350,18 @@ export default function Contact() {
                             autoComplete="postal-code"
                             className="w-full h-9" />
                         </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--black)] mb-1">
+                          Phone
+                        </label>
+                        <Input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          placeholder="(555) 123-4567"
+                          className="w-full h-9" />
                       </div>
                     </div>
                   </div>
