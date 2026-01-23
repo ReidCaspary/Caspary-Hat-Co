@@ -261,7 +261,19 @@ export default function Contact() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--black)] mb-1">
+                        Phone
+                      </label>
+                      <Input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="(555) 123-4567"
+                        className="w-full h-9" />
+                    </div>
                     <div>
                       <label className="block text-sm font-medium text-[var(--black)] mb-1">
                         Quantity
@@ -350,18 +362,6 @@ export default function Contact() {
                             autoComplete="postal-code"
                             className="w-full h-9" />
                         </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-[var(--black)] mb-1">
-                          Phone
-                        </label>
-                        <Input
-                          type="tel"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          placeholder="(555) 123-4567"
-                          className="w-full h-9" />
                       </div>
                     </div>
                   </div>

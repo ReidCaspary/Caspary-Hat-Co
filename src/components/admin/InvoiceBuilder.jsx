@@ -190,7 +190,7 @@ export default function InvoiceBuilder({ inquiry, open, onClose }) {
       // Ship To (if address exists)
       const hasShipping = formData.shippingStreet || formData.shippingCity;
       if (hasShipping) {
-        let shipY = yPos - (formData.customerCompany ? 17 : 12) - (formData.customerPhone ? 5 : 0);
+        let shipY = yPos - (formData.customerCompany ? 17 : 12);
         doc.setFontSize(12);
         doc.setTextColor(BRAND_COLORS.navy);
         doc.setFont("helvetica", "bold");
@@ -203,11 +203,6 @@ export default function InvoiceBuilder({ inquiry, open, onClose }) {
         // Add name
         doc.text(formData.customerName, margin + colWidth, shipY);
         shipY += 5;
-        // Add phone if exists
-        if (formData.customerPhone) {
-          doc.text(formData.customerPhone, margin + colWidth, shipY);
-          shipY += 5;
-        }
         // Add street address
         if (formData.shippingStreet) {
           doc.text(formData.shippingStreet, margin + colWidth, shipY);
@@ -219,6 +214,11 @@ export default function InvoiceBuilder({ inquiry, open, onClose }) {
           .join(", ");
         if (cityStateZip) {
           doc.text(cityStateZip, margin + colWidth, shipY);
+          shipY += 5;
+        }
+        // Add phone if exists
+        if (formData.customerPhone) {
+          doc.text(formData.customerPhone, margin + colWidth, shipY);
         }
       }
 
