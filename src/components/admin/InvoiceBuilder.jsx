@@ -302,7 +302,7 @@ export default function InvoiceBuilder({ inquiry, open, onClose }) {
       doc.setFont("helvetica", "normal");
       doc.setTextColor(60);
       doc.text(`50% - $${depositAmount} deposit to start order`, margin + 10, yPos + 18);
-      doc.text(`50% - $${deliveryAmount} due on delivery`, margin + 10, yPos + 26);
+      doc.text(`50% - $${deliveryAmount} due prior to shipping`, margin + 10, yPos + 26);
 
       // Payment options
       doc.setFontSize(11);
