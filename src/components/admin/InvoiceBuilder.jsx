@@ -4,7 +4,6 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -46,7 +45,6 @@ export default function InvoiceBuilder({ inquiry, open, onClose }) {
     hatStyle: inquiry?.hat_style || inquiry?.event_type || "Custom Hat",
     quantity: inquiry?.quantity || 1,
     pricePerHat: "",
-    notes: "",
   });
 
   const [mockupPreview, setMockupPreview] = useState(null);
@@ -68,7 +66,6 @@ export default function InvoiceBuilder({ inquiry, open, onClose }) {
         hatStyle: inquiry.event_type || "Custom Hat",
         quantity: inquiry.quantity || 1,
         pricePerHat: "",
-        notes: inquiry.message || "",
       });
     }
   }, [inquiry]);
@@ -317,35 +314,20 @@ export default function InvoiceBuilder({ inquiry, open, onClose }) {
 
       yPos += 58;
 
-      // Notes section (if any)
-      if (formData.notes) {
-        doc.setFontSize(11);
-        doc.setTextColor(BRAND_COLORS.navy);
-        doc.setFont("helvetica", "bold");
-        doc.text("Notes", margin, yPos);
-        yPos += 6;
+      // Footer - fixed position at bottom of page
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const footerY = pageHeight - 20;
 
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(60);
-        const splitNotes = doc.splitTextToSize(formData.notes, pageWidth - margin * 2);
-        doc.text(splitNotes, margin, yPos);
-        yPos += splitNotes.length * 5 + 8;
-      }
-
-      // Footer - add spacing and draw at current position
-      yPos += 5;
 
       doc.setDrawColor(BRAND_COLORS.copper);
       doc.setLineWidth(1);
-      doc.line(margin, yPos, pageWidth - margin, yPos);
+      doc.line(margin, footerY, pageWidth - margin, footerY);
 
-      yPos += 8;
       doc.setFontSize(9);
       doc.setTextColor(100);
       doc.setFont("helvetica", "italic");
-      doc.text("Thank you for choosing Caspary Hat Co!", pageWidth / 2, yPos, { align: "center" });
-      doc.text(COMPANY_INFO.website, pageWidth / 2, yPos + 5, { align: "center" });
+      doc.text("Thank you for choosing Caspary Hat Co!", pageWidth / 2, footerY + 8, { align: "center" });
+      doc.text(COMPANY_INFO.website, pageWidth / 2, footerY + 13, { align: "center" });
 
       // Save the PDF
       const fileName = `Invoice-${formData.invoiceNumber}-${formData.customerName.replace(/\s+/g, "-")}.pdf`;
@@ -564,18 +546,6 @@ export default function InvoiceBuilder({ inquiry, open, onClose }) {
             )}
           </div>
 
-          {/* Notes */}
-          <div>
-            <Label htmlFor="notes">Additional Notes (Optional)</Label>
-            <Textarea
-              id="notes"
-              name="notes"
-              value={formData.notes}
-              onChange={handleInputChange}
-              placeholder="Any additional notes for the invoice..."
-              rows={3}
-            />
-          </div>
         </div>
 
         <DialogFooter className="gap-2">
